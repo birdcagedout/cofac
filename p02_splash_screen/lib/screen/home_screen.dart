@@ -16,6 +16,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final MobileScannerController controller = MobileScannerController(
     formats: const [BarcodeFormat.qrCode],
   );
+  Barcode? lastBarcode;
+  List<Offset>? corners;
 
   @override
   void initState() {
@@ -25,13 +27,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     final scanWindow = Rect.fromCenter(
-      center: MediaQuery.sizeOf(context).center(Offset.zero),
+      center: MediaQuery.sizeOf(context).center(Offset.zero),   // Offset(192.0, 408.5) ==> 스크린 크기: (384, 817)
       width: 200,
       height: 200,
     );
+    // TopLeft:Offset(92.0, 308.5), TopRight:Offset(292.0, 308.5), BottomLeft:Offset(92.0, 508.5), BottomRight: Offset(292.0, 508.5)
 
     return Scaffold(
+      backgroundColor: Colors.black,
+
       appBar: AppBar(
         title: const Text(
           APP_TITLE_FULL,
@@ -42,57 +48,54 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         backgroundColor: Colors.purple[700],
       ),
-      backgroundColor: Colors.black,
 
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Center(
-            child: MobileScanner(
-              fit: BoxFit.contain,
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+
+        child: Stack(
+          // fit: StackFit.expand,
+          children: [
+
+            MobileScanner(
+              // fit: BoxFit.contain,
               controller: controller,
-              scanWindow: scanWindow,
-              errorBuilder: (context, error, child) {
-                return ScannerErrorWidget(error: error);
-              },
-              overlayBuilder: (context, constraints) {
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ScannedBarcodeLabel(barcodes: controller.barcodes),
-                  ),
-                );
+              // scanWindow: scanWindow,
+              // errorBuilder: (context, error, child) {
+              //   return ScannerErrorWidget(error: error);
+              // },
+              // overlayBuilder: (context, constraints) {
+              //   return Padding(
+              //     padding: const EdgeInsets.all(16.0),
+              //     child: Align(
+              //       alignment: Alignment.bottomCenter,
+              //       child: ScannedBarcodeLabel(barcodes: controller.barcodes),
+              //     ),
+              //   );
+              // },
+              onDetect: (barcodeCapture) {
+                final barcode = barcodeCapture.barcodes.first;
+                if (barcode.rawValue != null) {
+                  setState(() {
+                    lastBarcode = barcode;
+                    print(barcode.corners);
+                    corners = barcode.corners;
+                    corners = corners!.map((e) => e - Offset(80,0)).toList();
+                  });
+                }
               },
             ),
-          ),
-          ValueListenableBuilder(
-            valueListenable: controller,
-            builder: (context, value, child) {
-              if (!value.isInitialized ||
-                  !value.isRunning ||
-                  value.error != null) {
-                return const SizedBox();
-              }
 
-              return CustomPaint(
-                painter: ScannerOverlay(scanWindow: scanWindow),
-              );
-            },
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-
-                ],
+            if (lastBarcode != null)
+            Positioned(
+              left: 0,
+              top: 0,
+              child: CustomPaint(
+                painter: BorderPainter(corners!),
               ),
-            ),
-          ),
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -105,8 +108,29 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 
+class BorderPainter extends CustomPainter {
+  final List<Offset> corners;
 
-  class ScannerOverlay extends CustomPainter {
+  BorderPainter(this.corners);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    final path = Path()
+      ..addPolygon(corners, true);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+
+class ScannerOverlay extends CustomPainter {
   const ScannerOverlay({
     required this.scanWindow,
     this.borderRadius = 12.0,
@@ -171,3 +195,34 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+
+
+class BarcodeBorderPainter extends CustomPainter {
+  final List<Offset> corners;
+
+  BarcodeBorderPainter(this.corners);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (corners.isEmpty) return;
+
+    var paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0;
+
+    var path = Path();
+    path.moveTo(corners.first.dx, corners.first.dy);
+    for (var corner in corners) {
+      path.lineTo(corner.dx, corner.dy);
+    }
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
