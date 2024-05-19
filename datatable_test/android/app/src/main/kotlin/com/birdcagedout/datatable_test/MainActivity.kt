@@ -1,4 +1,4 @@
-package com.birdcagedout.grpay_scanner
+package com.birdcagedout.datatable_test
 
 import io.flutter.embedding.android.FlutterActivity
 

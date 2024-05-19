@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:p02_splash_screen/screen/home_screen.dart';
 import '../const/const.dart';
 
