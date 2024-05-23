@@ -18,7 +18,7 @@ class ScannedBarcodeLabel extends StatelessWidget {
 
         if (scannedBarcodes.isEmpty) {
           return const Text(
-            'Scan something!',
+            '스캔된 QR code가 없습니다',
             overflow: TextOverflow.fade,
             style: TextStyle(color: Colors.white),
           );

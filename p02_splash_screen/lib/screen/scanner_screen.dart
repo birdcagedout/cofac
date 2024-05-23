@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -14,7 +13,7 @@ class ScannerScreen extends StatefulWidget {
 
 class _ScannerScreenState extends State<ScannerScreen> {
   final MobileScannerController controller = MobileScannerController(detectionSpeed: DetectionSpeed.unrestricted);
-  final Set<Barcode> scannedQRSet = {};
+  ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});
   Color color4this = Colors.red;
 
 
@@ -38,6 +37,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
             // No barcode.
             if (barcodeCapture == null || barcodeCapture.barcodes.isEmpty) {
+              debugPrint("바코드 없음");
               return const SizedBox();
             }
 
@@ -58,12 +58,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
             // 내 QR이 맞으면 포함
-            scannedQRSet.add(scannedBarcode);
+            scannedQRSet.value.add(scannedBarcode.displayValue!);
 
 
             // 맞다면 Set에 추가, 추가한 후에는 노란색으로 표시
-            if(scannedQRSet.contains(scannedBarcode)) {
+            if(scannedQRSet.value.contains(scannedBarcode.displayValue!)) {
               color4this = Colors.yellow;
+            } else {
+              color4this = Colors.red;
             }
 
 
@@ -71,7 +73,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             // [Offset(237.0, 349.0), Offset(341.0, 370.0), Offset(320.0, 475.0), Offset(217.0, 453.0)], size: Size(0.0, 0.0), camera: Size(480.0, 640.0)
             // 아이폰
             // [Offset(432.0, 714.0), Offset(679.0, 808.0), Offset(586.0, 1050.0), Offset(343.0, 958.0)], size: Size(1128.0, 1504.0), camera: Size(3024.0, 4032.0)
-            debugPrint("[CustomPaint직전] corners: ${scannedBarcode.corners}, size: ${barcodeCapture.size}, camera: ${value.size}");
+            // debugPrint("[CustomPaint직전] corners: ${scannedBarcode.corners}, size: ${barcodeCapture.size}, camera: ${value.size}");
 
             return CustomPaint(
               painter: BarcodeOverlay(
@@ -89,7 +91,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
 
-  // 스캔 윈도 리턴하는 CustomPaint 위젯
+  // 스캔 윈도(사각형)을 제외한 배경을 리턴하는 CustomPaint 위젯
   Widget _buildScanWindow(Rect scanWindowRect) {
     return ValueListenableBuilder(
       valueListenable: controller,
@@ -111,14 +113,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 물리적 (W, H) = (1440, 3064)
     final scanWindow = Rect.fromCenter(
-      center: MediaQuery.sizeOf(context).center(Offset.zero),
+      center: MediaQuery.sizeOf(context).center(Offset.zero) - Offset(0, AppBar().preferredSize.height) /*- Offset(0, 50)*/,
       width: 200,
       height: 200,
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('With Scan window')),
+      appBar: AppBar(title: const Text('스캔 중'), centerTitle: true,),
       backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
@@ -130,8 +133,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
             scanWindow: scanWindow,
             controller: controller,
           ),
+
+          // QR code 색칠
           _buildBarcodeOverlay(),
+
+          // 스캔 윈도
           _buildScanWindow(scanWindow),
+
+          // 스캔 완료
+          ValueListenableBuilder(valueListenable: scannedQRSet, builder: (context, value, child) {
+            return Positioned(right: 20, top: 20, child: Text("스캔완료: ${scannedQRSet.value.length}개", style: TextStyle(color: Colors.white, fontSize: 30,),),);
+          }),
+
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -157,7 +170,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
 }
 
 
-// 스캔 윈도를 그리는 CustomPainer
+
+// 스캔 윈도(중간 사각형)을 제외한 나머지 배경을 그리는 CustomPainer
 class ScannerOverlay extends CustomPainter {
   ScannerOverlay(this.scanWindow);
 
@@ -169,7 +183,6 @@ class ScannerOverlay extends CustomPainter {
     // we need to pass the size to the custom paint widget
     final backgroundPath = Path()..addRect(Rect.largest);
     final cutoutPath = Path()..addRect(scanWindow);
-    debugPrint(backgroundPath.toString());
 
     final backgroundPaint = Paint()
       ..color = Colors.black.withOpacity(0.5)
@@ -186,7 +199,7 @@ class ScannerOverlay extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 }
 
@@ -230,6 +243,7 @@ class BarcodeOverlay extends CustomPainter {
     // FittedSize 타입은 2개의 속성을 가진다 (adjustedSize.source, adjustedSize.destination)
     // 예) source=Size(120, 80)가 dest=(300, 300) 영역에 BoxFit.contain으로 그려지면
     //    adjustedSize.source는 Size(120,80)으로 원본과 동일하고, adjustedSize.destination=Size(300, 200)이 된다
+    //    이때 widthRatio=300/120=2.5, heightRatio=200/80=2.5
     final adjustedSize = applyBoxFit(boxFit, cameraPreviewSize, size);
 
     double verticalPadding = size.height - adjustedSize.destination.height;

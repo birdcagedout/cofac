@@ -112,12 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            SizedBox(height: 50,),
+            SizedBox(height: 40,),
 
             // 스캔하기 버튼
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: 60,
+              height: 50,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.red[700],
@@ -133,6 +133,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: Text("스캔하기", style: TextStyle(fontSize: 20,),),
+              ),
+            ),
+
+            SizedBox(height: 20,),
+
+            // 결과보기 버튼
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 50,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.green[800],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),),
+                ),
+                onPressed: () {
+                  // 스캐너 페이지로 넘어간다
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) {
+                      return ScannerScreen();
+                    },),
+                  );
+                },
+                child: Text("결과보기", style: TextStyle(fontSize: 20,),),
               ),
             ),
           ],
