@@ -1,9 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:mobile_scanner_example/scanned_barcode_label.dart';
-
-import 'package:mobile_scanner_example/scanner_error_widget.dart';
+import '../ext/scanned_barcode_label.dart';
+import '../ext/scanner_error_widget.dart';
 
 class BarcodeScannerWithScanWindow extends StatefulWidget {
   const BarcodeScannerWithScanWindow({super.key});

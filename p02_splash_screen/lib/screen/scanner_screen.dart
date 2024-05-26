@@ -15,8 +15,10 @@ class ScannerScreen extends StatefulWidget {
   State<ScannerScreen> createState() => _ScannerScreenState();
 }
 
+
+
 class _ScannerScreenState extends State<ScannerScreen> {
-  final MobileScannerController controller = MobileScannerController(detectionSpeed: DetectionSpeed.unrestricted);
+  final MobileScannerController controller = MobileScannerController(detectionSpeed: DetectionSpeed.unrestricted, formats: [BarcodeFormat.qrCode]);
   final Set<String> scannedQRSet = {};
   ValueNotifier<int> scannedQRcount = ValueNotifier<int>(0);
   Color color4this = Colors.red;
