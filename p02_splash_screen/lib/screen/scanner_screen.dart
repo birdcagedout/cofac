@@ -1,7 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../ext/scanned_barcode_label.dart';
+
+
+Path? lastDrawnPath;
 
 
 class ScannerScreen extends StatefulWidget {
@@ -13,8 +17,30 @@ class ScannerScreen extends StatefulWidget {
 
 class _ScannerScreenState extends State<ScannerScreen> {
   final MobileScannerController controller = MobileScannerController(detectionSpeed: DetectionSpeed.unrestricted);
-  ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});
+  final Set<String> scannedQRSet = {};
+  ValueNotifier<int> scannedQRcount = ValueNotifier<int>(0);
   Color color4this = Colors.red;
+
+
+  // 스캔 윈도(사각형)을 제외한 배경을 리턴하는 CustomPaint 위젯
+  Widget _buildScanWindow(Rect scanWindowRect) {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        // Not ready.
+        if (!value.isInitialized ||
+            !value.isRunning ||
+            value.error != null ||
+            value.size.isEmpty) {
+          return const SizedBox();
+        }
+
+        return CustomPaint(
+          painter: ScannerOverlay(scanWindowRect),
+        );
+      },
+    );
+  }
 
 
 
@@ -26,8 +52,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
         // Not ready.
         if (!value.isInitialized || !value.isRunning || value.error != null) {
+          debugPrint("NOT READY");
           return const SizedBox();
         }
+
+        // 화면에 QR 있었다가 없을 때 콘트롤러 값이 바뀌는지 테스트 ==> 안 바뀜(현재 코드 실행 안 됨)
+        // print("콘트롤러 값 바뀜");
 
         return StreamBuilder<BarcodeCapture>(
           // Stream<BarcodeCapture> 타입이다. <--다름--> BarcodeCapture.barcodes는 List<Barcode> 타입이다
@@ -37,32 +67,43 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
             // No barcode.
             if (barcodeCapture == null || barcodeCapture.barcodes.isEmpty) {
-              debugPrint("바코드 없음");
-              return const SizedBox();
+              if(lastDrawnPath == null) {
+                debugPrint("현재 바코드 없음. 이전 바코드도 없었음");
+                return const SizedBox();
+              }
+              else {
+                debugPrint("현재 바코드 없음. 이전 바코드 있었음. 지우기 시작");
+                return CustomPaint(
+                  painter: EraseOverlay(),
+                );
+              }
+
             }
 
             final scannedBarcode = barcodeCapture.barcodes.first;
+            print("바코드 발견");
 
             // No barcode corners, or size, or no camera preview size.
             // 안드로이드일 때는 barcodeCapture.size가 (0,0)으로 안 나온다. 아이폰일 때만 나온다
-            if (scannedBarcode.corners.isEmpty || value.size.isEmpty) {
-              return const SizedBox();
-            }
+            // if (scannedBarcode.corners.isEmpty || value.size.isEmpty) {
+            //   return const SizedBox();
+            // }
 
             // 아이폰일 때만 barcodeCapture.size를 사용한다
-            if(defaultTargetPlatform == TargetPlatform.iOS && barcodeCapture.size.isEmpty) {
-              return const SizedBox();
-            }
+            // if(defaultTargetPlatform == TargetPlatform.iOS && barcodeCapture.size.isEmpty) {
+            //   return const SizedBox();
+            // }
 
             // 내 QR(연월 포함)이 맞는지 확인
 
 
             // 내 QR이 맞으면 포함
-            scannedQRSet.value.add(scannedBarcode.displayValue!);
+            scannedQRSet.add(scannedBarcode.displayValue!);
+            scannedQRcount.value = scannedQRSet.length;
 
 
             // 맞다면 Set에 추가, 추가한 후에는 노란색으로 표시
-            if(scannedQRSet.value.contains(scannedBarcode.displayValue!)) {
+            if(scannedQRSet.contains(scannedBarcode.displayValue!)) {
               color4this = Colors.yellow;
             } else {
               color4this = Colors.red;
@@ -90,29 +131,33 @@ class _ScannerScreenState extends State<ScannerScreen> {
     );
   }
 
-
-  // 스캔 윈도(사각형)을 제외한 배경을 리턴하는 CustomPaint 위젯
-  Widget _buildScanWindow(Rect scanWindowRect) {
+  /// 상단에 "스캔완료: 0개" 띄우기
+  Widget _buildScanCompleted() {
     return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) {
-        // Not ready.
-        if (!value.isInitialized ||
-            !value.isRunning ||
-            value.error != null ||
-            value.size.isEmpty) {
-          return const SizedBox();
-        }
-
-        return CustomPaint(
-          painter: ScannerOverlay(scanWindowRect),
+      valueListenable: scannedQRcount,
+      builder: (BuildContext context, int value, Widget? child) {
+        return Positioned(
+          right: 20,
+          top: 20,
+          child: Text(
+            "스캔완료: ${value}개",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 30,
+            ),
+          ),
         );
       },
     );
   }
 
+
+
+
+
   @override
   Widget build(BuildContext context) {
+
     // 물리적 (W, H) = (1440, 3064)
     final scanWindow = Rect.fromCenter(
       center: MediaQuery.sizeOf(context).center(Offset.zero) - Offset(0, AppBar().preferredSize.height) /*- Offset(0, 50)*/,
@@ -141,9 +186,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           _buildScanWindow(scanWindow),
 
           // 스캔 완료
-          ValueListenableBuilder(valueListenable: scannedQRSet, builder: (context, value, child) {
-            return Positioned(right: 20, top: 20, child: Text("스캔완료: ${scannedQRSet.value.length}개", style: TextStyle(color: Colors.white, fontSize: 30,),),);
-          }),
+          _buildScanCompleted(),
 
           Expanded(
             child: Align(
@@ -198,7 +241,7 @@ class ScannerOverlay extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(ScannerOverlay oldDelegate) {
     return false;
   }
 }
@@ -222,6 +265,7 @@ class BarcodeOverlay extends CustomPainter {
   final BoxFit boxFit;
   final Size cameraPreviewSize;
   Color timelyColor = Colors.red;
+  Path qrEdgePath = Path();
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -283,7 +327,7 @@ class BarcodeOverlay extends CustomPainter {
         ),
     ];
 
-    final qrEdgePath = Path()..addPolygon(adjustedOffset, true);
+    qrEdgePath = Path()..addPolygon(adjustedOffset, true);
 
     final qrEdgePainter = Paint()
       ..color = timelyColor
@@ -293,11 +337,36 @@ class BarcodeOverlay extends CustomPainter {
     // ..style = PaintingStyle.stroke;
     // ..blendMode = BlendMode.dst;
 
+    // 전역변수에 넣는다
+    lastDrawnPath = qrEdgePath;
+
     canvas.drawPath(qrEdgePath, qrEdgePainter);
   }
 
   @override
+  bool shouldRepaint(BarcodeOverlay oldDelegate) {
+    return qrEdgePath != oldDelegate.qrEdgePath;
+  }
+}
+
+
+/// 직전에 색칠된 QR code의 테두리를 지우는 역할
+class EraseOverlay extends CustomPainter {
+  final transparentPainter = Paint()
+    ..color = Colors.blue
+    ..strokeCap = StrokeCap.round
+    ..strokeWidth = 3
+    ..style = PaintingStyle.stroke;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawPath(lastDrawnPath!, transparentPainter);
+    print("투명색으로 지워줌");
+    lastDrawnPath = null;
+  }
+
+  @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 }
