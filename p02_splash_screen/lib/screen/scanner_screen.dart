@@ -67,19 +67,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
           builder: (context, snapshot) {
             final BarcodeCapture? barcodeCapture = snapshot.data;
 
-            // No barcode.
+            // No barcode: 처음 실행될 때 딱 2번만 true
             if (barcodeCapture == null || barcodeCapture.barcodes.isEmpty) {
-              if(lastDrawnPath == null) {
-                debugPrint("현재 바코드 없음. 이전 바코드도 없었음");
-                return const SizedBox();
-              }
-              else {
-                debugPrint("현재 바코드 없음. 이전 바코드 있었음. 지우기 시작");
-                return CustomPaint(
-                  painter: EraseOverlay(),
-                );
-              }
-
+              return const SizedBox();
             }
 
             final scannedBarcode = barcodeCapture.barcodes.first;
@@ -198,7 +188,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 height: 100,
                 color: Colors.black.withOpacity(0.4),
-                child: ScannedBarcodeLabel(barcodes: controller.barcodes),
+                child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes),
               ),
             ),
           ),

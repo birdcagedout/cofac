@@ -123,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: Colors.red[700],
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),),
+                  side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () {
                   // 스캐너 페이지로 넘어간다
@@ -147,6 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   backgroundColor: Colors.green[800],
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),),
+                  side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () {
                   // 스캐너 페이지로 넘어간다

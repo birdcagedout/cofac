@@ -108,7 +108,7 @@ class _BarcodeScannerWithScanWindowState
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               height: 100,
               color: Colors.black.withOpacity(0.4),
-              child: ScannedBarcodeLabel(barcodes: controller.barcodes),
+              child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes),
             ),
           ),
         ],
