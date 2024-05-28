@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class ScannedBarcodeLabel extends StatelessWidget {
+class ScannedBarcodeLabel extends StatefulWidget {
   const ScannedBarcodeLabel({
     super.key,
     required this.barcodeCapture,
@@ -12,11 +12,16 @@ class ScannedBarcodeLabel extends StatelessWidget {
   final Set<String> scannedQRSet;
 
   @override
+  State<ScannedBarcodeLabel> createState() => _ScannedBarcodeLabelState();
+}
+
+class _ScannedBarcodeLabelState extends State<ScannedBarcodeLabel> {
+  @override
   Widget build(BuildContext context) {
     final scrollController = ScrollController();
 
     return StreamBuilder(
-      stream: barcodeCapture,
+      stream: widget.barcodeCapture,
       builder: (context, snapshot) {
         final scannedBarcodes = snapshot.data?.barcodes ?? [];
 
@@ -27,6 +32,16 @@ class ScannedBarcodeLabel extends StatelessWidget {
             style: TextStyle(color: Colors.white),
           );
         }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (scrollController.hasClients) {
+            scrollController.animateTo(
+              scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
 
         // return Text(
         //   scannedBarcodes.first.displayValue ?? 'No display value.',
@@ -48,17 +63,17 @@ class ScannedBarcodeLabel extends StatelessWidget {
         //   },
         // );
 
-        return NotificationListener(
+        return NotificationListener<ScrollNotification>(
           child: Scrollbar(
             controller: scrollController,
             child: ListView.builder(
               controller: scrollController,
-              itemCount: scannedQRSet.length,
+              itemCount: widget.scannedQRSet.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    scannedQRSet.map((e) => e).toList()[index] ?? '',
+                    widget.scannedQRSet.map((e) => e).toList()[index] ?? '',
                     overflow: TextOverflow.fade,
                     style: const TextStyle(color: Colors.white),
                   ),
@@ -66,16 +81,20 @@ class ScannedBarcodeLabel extends StatelessWidget {
               },
             ),
           ),
-          onNotification: (event) {
-            if(scrollController.offset != scrollController.position.maxScrollExtent) {
-              scrollController.animateTo(
-                scrollController.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 100),
-                curve: Curves.fastOutSlowIn,
-              );
-            }
-            return false;
-          },
+          // onNotification: (event) {
+          //   print(event);
+          //   if(event is ScrollEndNotification) {
+          //     if(scrollController.offset != scrollController.position.maxScrollExtent) {
+          //       scrollController.animateTo(
+          //         scrollController.position.maxScrollExtent,
+          //         duration: const Duration(milliseconds: 100),
+          //         curve: Curves.fastOutSlowIn,
+          //       );
+          //     }
+          //   }
+          //   return false;
+          // },
+          onNotification: (notification) => false,
         );
 
 

@@ -141,8 +141,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("${widget.selectedStore}", style: TextStyle(color: Colors.yellow[600], fontSize: 20,),),
-              Text("스캔완료: ${newSet.length}개", style: TextStyle(color: Colors.white, fontSize: 20,),
-              ),
+              Text("스캔완료: ${newSet.length}개", style: TextStyle(color: Colors.white, fontSize: 20,),),
             ],
           ),
         );
@@ -206,7 +205,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 // height: 100,
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.lightBlueAccent.withOpacity(0.6),
                 child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes, scannedQRSet: scannedQRSet.value,),
               ),
             ),
