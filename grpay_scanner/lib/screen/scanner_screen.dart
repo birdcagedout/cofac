@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -5,7 +8,6 @@ import '../ext/scanned_barcode_label.dart';
 import '../core/qr_core.dart';
 
 
-Path? lastDrawnPath;
 
 
 class ScannerScreen extends StatefulWidget {
@@ -23,6 +25,35 @@ class _ScannerScreenState extends State<ScannerScreen> {
   final ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});
   // final ValueNotifier<int> scannedQRcount = ValueNotifier<int>(0);
   Color color4this = Colors.red;
+
+  // 현재 카메라에 QR이 있는지 여부를 상태로 저장
+  ValueNotifier<bool> isQRpresent = ValueNotifier<bool>(false);   // 현재 카메라에 QR이 있는지 여부(있으면 true, 없으면 false)
+  Timer? noQRTimer;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 현재 카메라에 검출된 QR이 있는지 없는지 판단하기 위한 ValueNotifier에 listener 붙임
+    // controller.barcodes는 Stream<BarcodeCapture> 타입이고, 인자로 들어가는 함수는 onData시에 BarcodeCapture 객체가 들어옴
+    controller.barcodes.listen(
+      (capture) {
+        // 직전상태에 QR 없었음 => 현재 QR 들어옴
+        if(isQRpresent.value == false) {
+          isQRpresent.value = true;
+        }
+        // 직전상태에 QR 있었음 => 현재 QR 들어옴
+        else {
+          // 50ms 남은 타이머가 살아있을테니 죽임
+          noQRTimer!.cancel();
+        }
+        // 300ms짜리 새로운 타이머 생성 => 300ms 후에 스트림 안 들어오면 isQRpresent은 false
+        noQRTimer = Timer(Duration(milliseconds: controller.detectionTimeoutMs + 50), () => isQRpresent.value = false,);
+      },
+    );
+  }
 
 
   // 스캔 윈도(사각형)을 제외한 배경을 리턴하는 CustomPaint 위젯
@@ -50,82 +81,98 @@ class _ScannerScreenState extends State<ScannerScreen> {
   // QR코드 주변 그리는 CustomPaint 위젯
   Widget _buildBarcodeOverlay() {
     return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) {    // value는 (value.size로만 값을 취하므로) camera로 보면 된다
+      valueListenable: isQRpresent,
+      builder: (context, isQR, child) {
+        return ValueListenableBuilder(
+          valueListenable: controller,
+          builder: (context, value, child) {    // value는 (value.size로만 값을 취하므로) camera로 보면 된다
 
-        // Not ready.
-        if (!value.isInitialized || !value.isRunning || value.error != null) {
-          debugPrint("NOT READY");
-          return const SizedBox();
-        }
+            // 체크해보니 일단 처음 3번 호출됨
+            // value.isInitialized=false, value.isRunning=false, value.error=null -> 카메라 초기화 전(이후 카메라 등록정보 올라감)
+            // value.isInitialized=true, value.isRunning=true, value.error=null -> 카메라 초기화됨(id=0인 Camera의 state=OPEN)
+            // value.isInitialized=true, value.isRunning=true, value.error=null -> 카메라 캡처 세션 open(Opening capture session)
+            // value.isInitialized=true, value.isRunning=true, value.error=null
+            // print("일단 컨트롤러 변화 감지됨: value.isInitialized=${value.isInitialized}, value.isRunning=${value.isRunning}, value.error=${value.error}");
 
-        // 화면에 QR 있었다가 없을 때 콘트롤러 값이 바뀌는지 테스트 ==> 안 바뀜(현재 코드 실행 안 됨)
-        // print("콘트롤러 값 바뀜");
 
-        return StreamBuilder<BarcodeCapture>(
-          // Stream<BarcodeCapture> 타입이다. <--다름--> BarcodeCapture.barcodes는 List<Barcode> 타입이다
-          stream: controller.barcodes,
-          builder: (context, snapshot) {
-            final BarcodeCapture? barcodeCapture = snapshot.data;
-
-            // No barcode: 처음 실행될 때 딱 2번만 true
-            if (barcodeCapture == null || barcodeCapture.barcodes.isEmpty) {
+            // 꼭 필요함 Not ready.
+            if (!value.isInitialized || !value.isRunning || value.error != null) {
+              debugPrint("NOT READY");
               return const SizedBox();
             }
 
-            final scannedBarcode = barcodeCapture.barcodes.first;
-            print("바코드 발견");
+            // 화면에 QR 있었다가 없을 때 콘트롤러 값이 바뀌는지 테스트 ==> 안 바뀜(현재 코드 실행 안 됨) ==> 그래서 isQRpresent를 넣었음
+            // print("콘트롤러 값 바뀜");
 
-            // No barcode corners, or size, or no camera preview size.
-            // 안드로이드일 때는 barcodeCapture.size가 (0,0)으로 안 나온다. 아이폰일 때만 나온다
-            // if (scannedBarcode.corners.isEmpty || value.size.isEmpty) {
-            //   return const SizedBox();
-            // }
+            return StreamBuilder<BarcodeCapture>(
+              // Stream<BarcodeCapture> 타입이다. <--다름--> BarcodeCapture.barcodes는 List<Barcode> 타입이다
+              stream: controller.barcodes,
+              builder: (context, snapshot) {
+                final BarcodeCapture? barcodeCapture = snapshot.data;
 
-            // 아이폰일 때만 barcodeCapture.size를 사용한다
-            // if(defaultTargetPlatform == TargetPlatform.iOS && barcodeCapture.size.isEmpty) {
-            //   return const SizedBox();
-            // }
+                // No barcode: 처음 실행될 때 딱 2번만 true
+                if (barcodeCapture == null || barcodeCapture.barcodes.isEmpty) {
+                  return const SizedBox();
+                }
 
+                final scannedBarcode = barcodeCapture.barcodes.first;
+                print("바코드 발견");
 
-            // 내 QR이 맞는지 검증
-            String rawQR = scannedBarcode.displayValue!;
-            if(isValidQR(rawQR)) {
-              // 검증 통과하면 Set에 추가 (리턴값: 새로운 값이면 true)
-              bool isNewQR = scannedQRSet.value.add(rawQR);
+                // No barcode corners, or size, or no camera preview size.
+                // 안드로이드일 때는 barcodeCapture.size가 (0,0)으로 안 나온다. 아이폰일 때만 나온다
+                // if (scannedBarcode.corners.isEmpty || value.size.isEmpty) {
+                //   return const SizedBox();
+                // }
 
-              // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
-              if(isNewQR) {
-                color4this = Colors.red;
-                // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() {});
-                });
-              } else {
-                color4this = Colors.green;
-              }
-            }
+                // 아이폰일 때만 barcodeCapture.size를 사용한다
+                // if(defaultTargetPlatform == TargetPlatform.iOS && barcodeCapture.size.isEmpty) {
+                //   return const SizedBox();
+                // }
 
 
-            // 안드로이드
-            // [Offset(237.0, 349.0), Offset(341.0, 370.0), Offset(320.0, 475.0), Offset(217.0, 453.0)], size: Size(0.0, 0.0), camera: Size(480.0, 640.0)
-            // 아이폰
-            // [Offset(432.0, 714.0), Offset(679.0, 808.0), Offset(586.0, 1050.0), Offset(343.0, 958.0)], size: Size(1128.0, 1504.0), camera: Size(3024.0, 4032.0)
-            // debugPrint("[CustomPaint직전] corners: ${scannedBarcode.corners}, size: ${barcodeCapture.size}, camera: ${value.size}");
+                // 내 QR이 맞는지 검증
+                String rawQR = scannedBarcode.displayValue!;
 
-            return CustomPaint(
-              painter: BarcodeOverlay(
-                barcodeCorners: scannedBarcode.corners,
-                barcodeSize: barcodeCapture.size,
-                boxFit: BoxFit.contain,
-                cameraPreviewSize: value.size,
-                timelyColor: color4this,
-              ),
+                // 아니면 리턴
+                if(!isValidQR(rawQR)) {
+                  return const SizedBox();
+                }
+
+                // 이제 내 QR이므로 ==> Set에 추가 (리턴값: 새로운 값이면 true)
+                bool isNewQR = scannedQRSet.value.add(rawQR);
+
+                // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
+                if(isNewQR) {
+                  color4this = Colors.red;
+                  // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {});
+                  });
+                } else {
+                  color4this = Colors.green;
+                }
+
+
+                // 안드로이드
+                // [Offset(237.0, 349.0), Offset(341.0, 370.0), Offset(320.0, 475.0), Offset(217.0, 453.0)], size: Size(0.0, 0.0), camera: Size(480.0, 640.0)
+                // 아이폰
+                // [Offset(432.0, 714.0), Offset(679.0, 808.0), Offset(586.0, 1050.0), Offset(343.0, 958.0)], size: Size(1128.0, 1504.0), camera: Size(3024.0, 4032.0)
+                // debugPrint("[CustomPaint직전] corners: ${scannedBarcode.corners}, size: ${barcodeCapture.size}, camera: ${value.size}");
+
+                return CustomPaint(
+                  painter: BarcodeOverlay(
+                    barcodeCorners: scannedBarcode.corners,
+                    barcodeSize: barcodeCapture.size,
+                    boxFit: BoxFit.contain,
+                    cameraPreviewSize: value.size,
+                    timelyColor: isQR == true ? color4this : Colors.transparent,
+                  ),
+                );
+              },
             );
           },
         );
-      },
-    );
+      },);
   }
 
   /// 상단에 "스캔완료: 0개" 띄우기
@@ -186,7 +233,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   controller: controller,
                 ),
 
-                // QR code 색칠
+                // QR code 테두리 색칠 (QR 없으면 투명색)
                 _buildBarcodeOverlay(),
 
                 // 스캔 윈도
@@ -194,6 +241,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
                 // 스캔 완료
                 _buildScanCompleted(),
+
+                // QR 없을 때 검출을 위한 테스트
+                // ValueListenableBuilder(valueListenable: isQRpresent, builder: (context, isQR, child) { if(isQR) print("QR 있음"); else print("QR 없음");  return SizedBox();},),
 
               ],
             ),
@@ -205,11 +255,26 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 // height: 100,
-                color: Colors.lightBlueAccent.withOpacity(0.6),
-                child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes, scannedQRSet: scannedQRSet.value,),
+                color: Colors.yellow[600],
+                child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes, scannedQRSet: scannedQRSet.value, fontColor: Colors.black,),
               ),
             ),
           ),
+          Container(
+              width: MediaQuery.of(context).size.width,
+              height: 50,
+              child: TextButton(
+                onPressed: () {},
+                child: Text("저장하기", style: TextStyle(fontSize: 20,),),
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0),),
+                  side: BorderSide(color: Colors.green[700]!,),
+                ),
+              ),
+          ),
+          SizedBox(height: 10,),
         ],
       ),
     );
@@ -217,8 +282,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Future<void> dispose() async {
-    super.dispose();
     await controller.dispose();
+    super.dispose();
   }
 }
 
@@ -274,8 +339,8 @@ class BarcodeOverlay extends CustomPainter {
   final Size barcodeSize;
   final BoxFit boxFit;
   final Size cameraPreviewSize;
-  Color timelyColor = Colors.red;
-  Path qrEdgePath = Path();
+  final Color timelyColor;
+
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -337,46 +402,23 @@ class BarcodeOverlay extends CustomPainter {
         ),
     ];
 
-    qrEdgePath = Path()..addPolygon(adjustedOffset, true);
+    final qrEdgePath = Path()..addPolygon(adjustedOffset, true);
 
     final qrEdgePainter = Paint()
       ..color = timelyColor
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 3
+      ..strokeWidth = 4
       ..style = PaintingStyle.stroke;
     // ..style = PaintingStyle.stroke;
     // ..blendMode = BlendMode.dst;
 
-    // 전역변수에 넣는다
-    lastDrawnPath = qrEdgePath;
 
     canvas.drawPath(qrEdgePath, qrEdgePainter);
   }
 
   @override
   bool shouldRepaint(BarcodeOverlay oldDelegate) {
-    return qrEdgePath != oldDelegate.qrEdgePath;
-  }
-}
-
-
-/// 직전에 색칠된 QR code의 테두리를 지우는 역할
-class EraseOverlay extends CustomPainter {
-  final transparentPainter = Paint()
-    ..color = Colors.blue
-    ..strokeCap = StrokeCap.round
-    ..strokeWidth = 3
-    ..style = PaintingStyle.stroke;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawPath(lastDrawnPath!, transparentPainter);
-    print("투명색으로 지워줌");
-    lastDrawnPath = null;
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    // return qrEdgePath != oldDelegate.qrEdgePath;
+    return true;
   }
 }

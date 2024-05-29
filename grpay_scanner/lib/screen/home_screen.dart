@@ -104,17 +104,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("3. (그 가맹점의) 식권만 스캔한다")],
+                  children: [Text("3. 그 가맹점의 식권을 모두 스캔한다")],
                 ),
                 SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("4. 가맹점이 바뀌면 이전 화면에서 1번부터 반복한다")],
+                  children: [Text("4. 저장하기를 누른다")],
                 ),
                 SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("⚠︎ 스캔하기 전 반드시 *식당이름*을 확인해주세요")],
+                  children: [Text("⚠︎ 스캔하기 전 반드시 상호명을 확인해주세요")],
                 ),
               ],
             ),
@@ -234,9 +234,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
-              title: Text('스캔할 식당 선택'),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('스캔할 가맹점 선택  '),
+                ],
+              ),
               content: DropdownButton<String>(
-                hint: Text('식당을 선택해주세요'),
+                hint: Text('가맹점을 선택해주세요'),
                 value: _dialogSelectedValue,
                 items: storeList.map((String value) {
                   return DropdownMenuItem<String>(

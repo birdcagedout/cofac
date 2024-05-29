@@ -19,14 +19,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 2),
       vsync: this,
     );
 
     // CurvedAnimation을 사용하여 커브를 적용
     final curvedAnimation = CurvedAnimation(
       parent: _controller!,
-      curve: const Interval(0.8, 1.0, curve: Curves.easeOutCubic), // 처음 2초(66.7%)는 정지, 마지막 1초 동안 애니메이션
+      curve: const Interval(0.8, 1.0, curve: Curves.easeOutCubic), // 총 Duration의 80%는 정지, 마지막 20% 동안 애니메이션
     );
 
     _animation = Tween(begin: 1.0, end: 0.0).animate(curvedAnimation)

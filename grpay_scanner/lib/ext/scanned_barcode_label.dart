@@ -6,10 +6,12 @@ class ScannedBarcodeLabel extends StatefulWidget {
     super.key,
     required this.barcodeCapture,
     required this.scannedQRSet,
+    required this.fontColor,
   });
 
   final Stream<BarcodeCapture> barcodeCapture;
   final Set<String> scannedQRSet;
+  final Color fontColor;
 
   @override
   State<ScannedBarcodeLabel> createState() => _ScannedBarcodeLabelState();
@@ -26,10 +28,10 @@ class _ScannedBarcodeLabelState extends State<ScannedBarcodeLabel> {
         final scannedBarcodes = snapshot.data?.barcodes ?? [];
 
         if (scannedBarcodes.isEmpty) {
-          return const Text(
+          return Text(
             '스캔된 QR code가 없습니다',
             overflow: TextOverflow.fade,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: widget.fontColor),
           );
         }
 
@@ -75,7 +77,7 @@ class _ScannedBarcodeLabelState extends State<ScannedBarcodeLabel> {
                   child: Text(
                     widget.scannedQRSet.map((e) => e).toList()[index] ?? '',
                     overflow: TextOverflow.fade,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: widget.fontColor),
                   ),
                 );
               },
