@@ -132,14 +132,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
                 // 내 QR이 맞는지 검증
                 String rawQR = scannedBarcode.displayValue!;
+                QRInfo qrInfo = getValidQRInfo(rawQR);
 
                 // 아니면 리턴
-                if(!isValidQR(rawQR)) {
+                if(qrInfo.isMyQR == false) {
                   return const SizedBox();
                 }
 
                 // 이제 내 QR이므로 ==> Set에 추가 (리턴값: 새로운 값이면 true)
-                bool isNewQR = scannedQRSet.value.add(rawQR);
+                bool isNewQR = scannedQRSet.value.add(qrInfo.getString());
 
                 // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
                 if(isNewQR) {

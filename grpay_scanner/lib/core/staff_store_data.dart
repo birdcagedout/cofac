@@ -67,6 +67,7 @@ const List<String> staffIDList = [
   '2113'
 ];
 
+
 // 직원 lookup table (code -> name) ==> {2610: 송재혁, 2591: 이재환, 2595: 정헌옥, ...}
 // staffTable['2596'] = '김재형'
 final Map<String, String> staffTable = Map.fromIterables(staffIDList, staffNameList);

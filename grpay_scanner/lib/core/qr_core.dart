@@ -127,82 +127,109 @@ bool isHashValid(String code) {
   return (code[7] + code[14]) == (h1 + h2);
 }
 
+
+// 식권 QR 1개에서 추출된 정보
+class QRInfo {
+  bool isMyQR = false;
+  String name = "";
+  int number = 0;
+
+  String getString() {
+    String numberString = number < 10 ? "0" + number.toString() : number.toString();
+    return numberString + name;
+  }
+}
+
+(int, String) extractNumberName(String numName) {
+  int num = int.parse(numName.substring(0, 2));
+  String name = numName.substring(2);
+  return (num, name);
+}
+
+
 ///================================================
 /// 한방에 모든 검증(rawQR은 displayValue)
-bool isValidQR(String rawQR) {
+QRInfo getValidQRInfo(String rawQR) {
   String baseQR = "";
+  QRInfo returnValue = QRInfo();
 
   // 1) Base64Encoded 문자열인지 확인
   if (!isB64Encoded(rawQR)) {
-    return false;
+    return returnValue;
   }
   baseQR = getReversed(B64Decode(rawQR)); // 길이=15
 
   // 2) 길이 체크(15)
   if (baseQR.length != 15) {
-    return false;
+    return returnValue;
   }
 
   // 3) 성분 분해 + 검증
   String appID = baseQR[0];
-  if (appID != "G") return false;
+  if (appID != "G") return returnValue;
 
   int num = B32B[baseQR[1]]!;
-  if (num < 0 || num > 20) return false;
+  if (num < 0 || num > 20) return returnValue;
 
   int year = B32B[baseQR[2]]! + 2000;
   int month = B32B[baseQR[3]]!;
-  if (year != targetYear || month != targetMonth) return false;
+  if (year != targetYear || month != targetMonth) return returnValue;
 
   String org = baseQR.substring(4, 6);
   String dept = baseQR.substring(6, 7);
-  if (org != "H2" || !["1", "A", "W"].contains(dept)) return false;
+  if (org != "H2" || !["1", "A", "W"].contains(dept)) return returnValue;
 
   String id = baseQR.substring(9, 13);
-  if (!staffIDList.contains(id)) return false;
+  if (!staffIDList.contains(id)) return returnValue;
+  String name = staffTable[id]!;
+
+
 
   // 4) salt 검증
   String saltInCode = baseQR[8];
   String realSalt = B32F[31 -
       ((int.parse(id[0]) +
-              int.parse(id[1]) +
-              int.parse(id[2]) +
-              int.parse(id[3]) +
-              num) %
+          int.parse(id[1]) +
+          int.parse(id[2]) +
+          int.parse(id[3]) +
+          num) %
           16)]!;
   if (saltInCode != realSalt) {
-    return false;
+    return returnValue;
   }
 
   // 5) Hash 검증: h2 계산 코드에서 'W'이면 'V'로 사용한다는 코드는 삭제할 것
   String base13 = baseQR
-      .split('')
-      .asMap()
-      .entries
-      .where((entry) => entry.key != 7 && entry.key != 14)
-      .map((entry) => entry.value)
-      .join('');
+    .split('')
+    .asMap()
+    .entries
+    .where((entry) => entry.key != 7 && entry.key != 14)
+    .map((entry) => entry.value)
+    .join('');
   String h1 = B32F[((B32B[base13[0]]! * 13 +
-          B32B[base13[1]]! * 29 +
-          B32B[base13[2]]! * 37 +
-          B32B[base13[3]]! * 47 +
-          B32B[base13[4]]! * 59 +
-          B32B[base13[5]]! * 61) %
-      32)]!;
+    B32B[base13[1]]! * 29 +
+    B32B[base13[2]]! * 37 +
+    B32B[base13[3]]! * 47 +
+    B32B[base13[4]]! * 59 +
+    B32B[base13[5]]! * 61) %
+    32)]!;
   String h2 = B32F[((B32B[base13[6] == 'W' ? 'V' : base13[6]]! * 13 +
-          B32B[base13[7]]! * 29 +
-          B32B[base13[8]]! * 37 +
-          B32B[base13[9]]! * 47 +
-          B32B[base13[10]]! * 59 +
-          B32B[base13[11]]! * 61) %
-      32)]!;
-  if ((baseQR[7] + baseQR[14]) != (h1 + h2)) return false;
+    B32B[base13[7]]! * 29 +
+    B32B[base13[8]]! * 37 +
+    B32B[base13[9]]! * 47 +
+    B32B[base13[10]]! * 59 +
+    B32B[base13[11]]! * 61) %
+    32)]!;
+  if ((baseQR[7] + baseQR[14]) != (h1 + h2)) return returnValue;
 
   String qrClass = baseQR[13];
-  if (qrClass != "M") return false;
+  if (qrClass != "M") return returnValue;
 
   // 모든 검증을 통과한 경우
-  return true;
+  returnValue.isMyQR = true;
+  returnValue.name = name;
+  returnValue.number = num;
+  return returnValue;
 }
 ///================================================
 
@@ -216,18 +243,18 @@ bool isValidQR(String rawQR) {
 // 2) dept에 ["1", "A", "S"]
 // 3) String h2 = B32F[((B32B[base13[6]]! * 13 +
 
-void main() {
-  // 엑셀에 있는 rawQR코드가 검증을 통과하는지 테스트 코드: countT: 440, countF: 0
-  var countT = 0;
-  var countF = 0;
-
-  for (var rawQR in ticket_data) {
-    if (!isValidQR(rawQR)) {
-      print("에러: ${rawQR}");
-      countF++;
-    } else {
-      countT++;
-    }
-  }
-  print("countT: ${countT}, countF: ${countF}");
-}
+// void main() {
+//   // 엑셀에 있는 rawQR코드가 검증을 통과하는지 테스트 코드: countT: 440, countF: 0
+//   var countT = 0;
+//   var countF = 0;
+//
+//   for (var rawQR in ticket_data) {
+//     if (!isValidQR(rawQR)) {
+//       print("에러: ${rawQR}");
+//       countF++;
+//     } else {
+//       countT++;
+//     }
+//   }
+//   print("countT: ${countT}, countF: ${countF}");
+// }
