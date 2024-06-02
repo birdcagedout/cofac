@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grpay_scanner/core/staff_store_data.dart';
+import 'package:grpay_scanner/screen/result_screen.dart';
 import '/screen/scanner_screen.dart';
 
 
@@ -16,7 +17,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final now = DateTime.now();
   final lastMonth = DateTime(DateTime.now().year, DateTime.now().month-1);
   DateTime selectedDate = DateTime.now();
-  String? _selectedStore;
+  String _selectedStore = "";
+  
+  // 데이터 저장 ==> 전역변수 ticketData
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -133,15 +138,42 @@ class _HomeScreenState extends State<HomeScreen> {
                   side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () async {
-                  final selectedValue = await _showDialog(context);
-                  if (selectedValue != null) {
-                    _selectedStore = selectedValue;
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) {
+                  // 날짜 입력 받기
+                  final String? selectedValue = await _showDialog(context);
+                  if (selectedValue == null) return;
+
+                  // 날짜 입력이 제대로 들어오면 push
+                  _selectedStore = selectedValue;
+                  Map<String, List<int>>? dataFromTheStore = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
                         return ScannerScreen(selectedStore: _selectedStore,);
-                      },),
-                    );
+                      },
+                    ),
+                  );
+
+                  // 저장하기 안 누르고 뒤로 돌아간 경우
+                  if(dataFromTheStore == null) {
+                    print("널값 리턴");
+                    return;
                   }
+
+                  // 리턴값 표에 저장
+                  for(var staff in dataFromTheStore.keys) {
+                    for(var eachNumber in dataFromTheStore[staff]!) {
+                      if(!ticketData[_selectedStore]![staff]!.contains(eachNumber)) {
+                        ticketData[_selectedStore]![staff] = [...ticketData[_selectedStore]![staff]!, ...dataFromTheStore[staff]!];
+                      }
+                    }
+                  }
+                  // print(ticketData);
+
+                  // '(식당별)소계' 저장 ==> 리턴값을 받은 타이밍에 반드시 계산하여 저장(나중에 _selectedStore는 달라질 수도 있다)
+                  int total = 0;
+                  for(var staff in staffNameList) {
+                    total += ticketData[_selectedStore]![staff]!.length;
+                  }
+                  ticketData[_selectedStore]!['소계'] = List.filled(total, 0);
                 },
                 child: Text("스캔하기", style: TextStyle(fontSize: 20,),),
               ),
@@ -161,12 +193,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () {
-                  // 스캐너 페이지로 넘어간다
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(builder: (context) {
-                  //     return ScannerScreen();
-                  //   },),
-                  // );
+                  // DataTable 페이지로 넘어간다
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ResultScreen(ticketData: ticketData,);
+                      },
+                    ),
+                  );
                 },
                 child: Text("결과보기", style: TextStyle(fontSize: 20,),),
               ),

@@ -76,19 +76,19 @@ final Map<String, String> staffTable = Map.fromIterables(staffIDList, staffNameL
 
 // 식권 Data 초기화: Map(k=식당) 속의 Map(k=직원)
 // {
-//    '신가네칼국수': {'송재혁': 0, '이재환': 0, ...},
-//    '파리바게트':  {'송재혁': 0, '이재환': 0, ...},
+//    '신가네칼국수': {'송재혁': [1, 5, 10], '이재환': [6, 9], ...},
+//    '파리바게트':  {'송재혁': [], '이재환': [10, 11, 12, 20], ...},
 //    ...
 // }
 // final이어도 참조형이므로 값 변경 가능
-// ==> ticketData['분식사']!['김재형'] = 10;
-final Map<String, Map<String, int>> ticketData = Map.fromEntries(
+// ==> count = ticketData['분식사']!['김재형']!.length;
+final Map<String, Map<String, List<int>>> ticketData = Map.fromEntries(
   storeList.map(
     (store) => MapEntry(
       store,
       Map.fromEntries(
-        staffNameList.map(
-          (staff) => MapEntry(staff, 0),
+        ['소계', ...staffNameList].map(
+          (staff) => MapEntry(staff, []),
         ),
       ),
     ),

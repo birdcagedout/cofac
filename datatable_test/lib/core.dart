@@ -34,7 +34,8 @@ final List<String> staffIDList = [
 final Map<String, String> staffTable = Map.fromIterables(staffIDList, staffNameList);
 
 
-final String targetDate = "2024년 5월";
+const int targetYear = 2024;
+const int targetMonth = 5;
 
 
 // 식권 Data 초기화: Map(k=식당) 속의 Map(k=직원)

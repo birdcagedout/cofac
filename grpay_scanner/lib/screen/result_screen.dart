@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'core.dart';
 
-
+import '../const/const.dart';
+import '../core/staff_store_data.dart';
 
 
 
@@ -17,7 +17,7 @@ class RestaurantDataSource extends DataGridSource {
       cells: [
         DataGridCell<String> (
           columnName: 'restaurant',
-          value: storeList[index],
+          value: storeList[index] + "(" + ticketData[storeList[index]]!['소계']!.length.toString() + ")",
         ),
 
         for (var staff in staffNameList)
@@ -42,7 +42,7 @@ class RestaurantDataSource extends DataGridSource {
       cells: [
         for (var cell in row.getCells())
           Container(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.symmetric(horizontal: 5),
             alignment: Alignment.center,
             child: Text(cell.value.toString()),
           ),
@@ -70,17 +70,18 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    restaurantDataSource = RestaurantDataSource(ticketData:  widget.ticketData);
+    restaurantDataSource = RestaurantDataSource(ticketData: widget.ticketData);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${targetYear}년 $targetMonth월 식권 정산'),),
+      appBar: AppBar(title: Text('${targetYear}년 $targetMonth월 식권 정산', style: TextStyle(fontSize: 25,),), centerTitle: true,),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
+              flex: 10,
               child: SfDataGrid(
                 source: restaurantDataSource,
                 frozenColumnsCount: 1,        // 첫번째 컬럼 고정 (좌우 스크롤 시)
@@ -89,11 +90,12 @@ class _ResultScreenState extends State<ResultScreen> {
                   // 첫번째 컬럼 헤더
                   GridColumn(
                     columnName: 'restaurant',
+                    width: 110,
                     label: Container(
-                      color: Colors.green[100],
-                      padding: EdgeInsets.all(8.0),
+                      color: Colors.green[300],
+                      padding: EdgeInsets.symmetric(horizontal: 5),
                       alignment: Alignment.center,
-                      child: Text('식당', style: TextStyle(fontSize: 16,),),
+                      child: Text('식당(개수)', style: TextStyle(fontSize: 16,),),
                     ),
                   ),
                   // 나머지 컬럼 헤더
@@ -101,8 +103,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     GridColumn(
                       columnName: staff,
                       label: Container(
-                        color: Colors.green[100],
-                        padding: EdgeInsets.all(8.0),
+                        color: Colors.green[300],
+                        padding: EdgeInsets.symmetric(horizontal: 5),
                         alignment: Alignment.center,
                         child: Text(staff, style: TextStyle(fontSize: 16,),),
                       ),
@@ -110,42 +112,45 @@ class _ResultScreenState extends State<ResultScreen> {
                 ],
               ),
             ),
-        
-            OutlinedButton(
-              onPressed: () async {
-                // await saveExcel(widget.ticketData);
-                },
-              child: Text('엑셀 파일로 저장'),
-            ),
+
+            // Expanded(
+            //   flex: 1,
+            //   child: OutlinedButton(
+            //     onPressed: () async {
+            //       // await saveExcel(widget.ticketData);
+            //     },
+            //     child: Text('엑셀 파일로 저장'),
+            //   ),
+            // ),
           ],
         ),
       ),
     );
   }
 
-  // Future<void> saveExcel(Map<String, Map<String, int>> ticketData) async {
-  //   var excel = Excel.createExcel();
-  //   Sheet sheet = excel['Sheet1'];
-  //
-  //   // Add header row
-  //   List<String> headerRow = ['식당'] + staffList;
-  //   sheet.appendRow(headerRow);
-  //
-  //   // Add data rows
-  //   for (var store in storeList) {
-  //     List<dynamic> row = [store];
-  //     row.addAll(List<int>.generate(staffList.length, (index) => ticketData[store]![staffList[index]]));
-  //     sheet.appendRow(row);
-  //   }
-  //
-  //   // Save the file
-  //   Directory directory = await getApplicationDocumentsDirectory();
-  //   String path = directory.path;
-  //   String fileName = '$path/restaurant_meals.xlsx';
-  //   File(fileName)
-  //     ..createSync(recursive: true)
-  //     ..writeAsBytesSync(excel.encode()!);
-  //
-  //   print('Excel file saved: $fileName');
-  // }
+// Future<void> saveExcel(Map<String, Map<String, int>> ticketData) async {
+//   var excel = Excel.createExcel();
+//   Sheet sheet = excel['Sheet1'];
+//
+//   // Add header row
+//   List<String> headerRow = ['식당'] + staffList;
+//   sheet.appendRow(headerRow);
+//
+//   // Add data rows
+//   for (var store in storeList) {
+//     List<dynamic> row = [store];
+//     row.addAll(List<int>.generate(staffList.length, (index) => ticketData[store]![staffList[index]]));
+//     sheet.appendRow(row);
+//   }
+//
+//   // Save the file
+//   Directory directory = await getApplicationDocumentsDirectory();
+//   String path = directory.path;
+//   String fileName = '$path/restaurant_meals.xlsx';
+//   File(fileName)
+//     ..createSync(recursive: true)
+//     ..writeAsBytesSync(excel.encode()!);
+//
+//   print('Excel file saved: $fileName');
+// }
 }

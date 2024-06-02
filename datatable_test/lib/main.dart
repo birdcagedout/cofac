@@ -6,7 +6,7 @@ import 'core.dart';
 void main() {
   runApp(
     MaterialApp(
-      home: DataGridPage(ticketData: ticketData,),
+      home: ResultScreen(ticketData: ticketData,),
     ),
   );
 }

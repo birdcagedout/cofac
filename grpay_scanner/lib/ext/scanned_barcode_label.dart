@@ -45,26 +45,6 @@ class _ScannedBarcodeLabelState extends State<ScannedBarcodeLabel> {
           }
         });
 
-        // return Text(
-        //   scannedBarcodes.first.displayValue ?? 'No display value.',
-        //   overflow: TextOverflow.fade,
-        //   style: const TextStyle(color: Colors.white),
-        // );
-
-        // return ListView.builder(
-        //   itemCount: scannedBarcodes.length,
-        //   itemBuilder: (context, index) {
-        //     return Padding(
-        //       padding: const EdgeInsets.all(8.0),
-        //       child: Text(
-        //         scannedBarcodes[index].rawValue ?? '값 없음',
-        //         overflow: TextOverflow.fade,
-        //         style: const TextStyle(color: Colors.white),
-        //       ),
-        //     );
-        //   },
-        // );
-
         return NotificationListener<ScrollNotification>(
           child: Scrollbar(
             controller: scrollController,
@@ -83,19 +63,6 @@ class _ScannedBarcodeLabelState extends State<ScannedBarcodeLabel> {
               },
             ),
           ),
-          // onNotification: (event) {
-          //   print(event);
-          //   if(event is ScrollEndNotification) {
-          //     if(scrollController.offset != scrollController.position.maxScrollExtent) {
-          //       scrollController.animateTo(
-          //         scrollController.position.maxScrollExtent,
-          //         duration: const Duration(milliseconds: 100),
-          //         curve: Curves.fastOutSlowIn,
-          //       );
-          //     }
-          //   }
-          //   return false;
-          // },
           onNotification: (notification) => false,
         );
 

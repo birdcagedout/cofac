@@ -12,7 +12,7 @@ import '../core/qr_core.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({required this.selectedStore, super.key});
-  final selectedStore;
+  final String selectedStore;
 
   @override
   State<ScannerScreen> createState() => _ScannerScreenState();
@@ -22,8 +22,11 @@ class ScannerScreen extends StatefulWidget {
 
 class _ScannerScreenState extends State<ScannerScreen> {
   final MobileScannerController controller = MobileScannerController(detectionSpeed: DetectionSpeed.unrestricted, formats: [BarcodeFormat.qrCode]);
-  final ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});
-  // final ValueNotifier<int> scannedQRcount = ValueNotifier<int>(0);
+
+  // 스캔된 QR 저장
+  final ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});   // Set이라 중복 제거. "02김재형" 형태로 저장됨
+  final Map<String, List<int>> scannedQRrow = {};     // {'김재형': [1, 3, 8], '이재환': [10, 11], '정헌옥': []}
+
   Color color4this = Colors.red;
 
   // 현재 카메라에 QR이 있는지 여부를 상태로 저장
@@ -144,6 +147,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
                 // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
                 if(isNewQR) {
+
+                  // 새로운 QR이 들어올 때마다 Map애 등록
+                  if(scannedQRrow[qrInfo.name] == null) {
+                    scannedQRrow[qrInfo.name] = [];
+                  }
+                  scannedQRrow[qrInfo.name]!.add(qrInfo.number);
+
                   color4this = Colors.red;
                   // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -217,7 +227,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('스캔 중'), centerTitle: true,),
+      appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25,),), centerTitle: true,),
       backgroundColor: Colors.black,
       body: Column(
         children: [
@@ -265,7 +275,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
               width: MediaQuery.of(context).size.width,
               height: 50,
               child: TextButton(
-                onPressed: () {},
                 child: Text("저장하기", style: TextStyle(fontSize: 20,),),
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.green[700],
@@ -273,6 +282,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0),),
                   side: BorderSide(color: Colors.green[700]!,),
                 ),
+                onPressed: () {
+                  // 현재까지 QR 검출된 data를 pop에 인자로 넘겨주기
+                  // scannedQRrow는 Map<String, List<int>> 타입임
+                  Navigator.of(context).pop(scannedQRrow);
+                },
               ),
           ),
           SizedBox(height: 10,),
@@ -283,8 +297,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Future<void> dispose() async {
-    await controller.dispose();
     super.dispose();
+    await controller.dispose();
   }
 }
 
