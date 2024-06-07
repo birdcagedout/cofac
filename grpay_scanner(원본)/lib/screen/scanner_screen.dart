@@ -1,6 +1,6 @@
 import 'dart:async';
 
-// import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -25,7 +25,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   // 스캔된 QR 저장
   final ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});   // Set이라 중복 제거. "02김재형" 형태로 저장됨
-  final Map<String, List<int>> scannedQRrow = {};                                   // {'김재형': [1, 3, 8], '이재환': [10, 11], '정헌옥': []}
+  final Map<String, List<int>> scannedQRrow = {};     // {'김재형': [1, 3, 8], '이재환': [10, 11], '정헌옥': []}
 
   Color color4this = Colors.red;
 
@@ -60,24 +60,24 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
   // 스캔 윈도(사각형)을 제외한 배경을 리턴하는 CustomPaint 위젯
-  // Widget _buildScanWindow(Rect scanWindowRect) {
-  //   return ValueListenableBuilder(
-  //     valueListenable: controller,
-  //     builder: (context, value, child) {
-  //       // Not ready.
-  //       if (!value.isInitialized ||
-  //           !value.isRunning ||
-  //           value.error != null ||
-  //           value.size.isEmpty) {
-  //         return const SizedBox();
-  //       }
-  //
-  //       return CustomPaint(
-  //         painter: ScannerOverlay(scanWindowRect),
-  //       );
-  //     },
-  //   );
-  // }
+  Widget _buildScanWindow(Rect scanWindowRect) {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        // Not ready.
+        if (!value.isInitialized ||
+            !value.isRunning ||
+            value.error != null ||
+            value.size.isEmpty) {
+          return const SizedBox();
+        }
+
+        return CustomPaint(
+          painter: ScannerOverlay(scanWindowRect),
+        );
+      },
+    );
+  }
 
 
 
@@ -219,12 +219,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
     // 물리적 (W, H) = (1440, 3064)
-    // final scanWindow = Rect.fromCenter(
-    //   // center: MediaQuery.sizeOf(context).center(Offset.zero) - Offset(0, (statusBarHeight + appBarHeight)) /*- Offset(0, 50)*/,
-    //   center: Offset(MediaQuery.of(context).size.width / 2,  cameraPreviewHeight / 2),
-    //   width: 200,
-    //   height: 200,
-    // );
+    final scanWindow = Rect.fromCenter(
+      // center: MediaQuery.sizeOf(context).center(Offset.zero) - Offset(0, (statusBarHeight + appBarHeight)) /*- Offset(0, 50)*/,
+      center: Offset(MediaQuery.of(context).size.width / 2,  cameraPreviewHeight / 2),
+      width: 200,
+      height: 200,
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25,),), centerTitle: true,),
@@ -240,7 +240,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 // 검은배경과 카메라프리뷰 합쳐서 MobileScanner임 (앱바를 제외한 모든영역에서 위/아래 검은색 같은 높이)
                 MobileScanner(
                   fit: BoxFit.contain,
-                  // scanWindow: scanWindow,
+                  scanWindow: scanWindow,
                   controller: controller,
                 ),
 
@@ -248,7 +248,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 _buildBarcodeOverlay(),
 
                 // 스캔 윈도
-                // _buildScanWindow(scanWindow),
+                _buildScanWindow(scanWindow),
 
                 // 스캔 완료
                 _buildScanCompleted(),
@@ -305,36 +305,36 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
 // 스캔 윈도(중간 사각형)을 제외한 나머지 배경을 그리는 CustomPainer
-// class ScannerOverlay extends CustomPainter {
-//   ScannerOverlay(this.scanWindow);
-//
-//   final Rect scanWindow;
-//
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     // TODO: use `Offset.zero & size` instead of Rect.largest
-//     // we need to pass the size to the custom paint widget
-//     final backgroundPath = Path()..addRect(Rect.largest);
-//     final cutoutPath = Path()..addRect(scanWindow);
-//
-//     final backgroundPaint = Paint()
-//       ..color = Colors.black.withOpacity(0.5)
-//       ..style = PaintingStyle.fill
-//       ..blendMode = BlendMode.dstOut;
-//
-//     final backgroundWithCutout = Path.combine(
-//       PathOperation.difference,
-//       backgroundPath,
-//       cutoutPath,
-//     );
-//     canvas.drawPath(backgroundWithCutout, backgroundPaint);
-//   }
-//
-//   @override
-//   bool shouldRepaint(ScannerOverlay oldDelegate) {
-//     return false;
-//   }
-// }
+class ScannerOverlay extends CustomPainter {
+  ScannerOverlay(this.scanWindow);
+
+  final Rect scanWindow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // TODO: use `Offset.zero & size` instead of Rect.largest
+    // we need to pass the size to the custom paint widget
+    final backgroundPath = Path()..addRect(Rect.largest);
+    final cutoutPath = Path()..addRect(scanWindow);
+
+    final backgroundPaint = Paint()
+      ..color = Colors.black.withOpacity(0.5)
+      ..style = PaintingStyle.fill
+      ..blendMode = BlendMode.dstOut;
+
+    final backgroundWithCutout = Path.combine(
+      PathOperation.difference,
+      backgroundPath,
+      cutoutPath,
+    );
+    canvas.drawPath(backgroundWithCutout, backgroundPaint);
+  }
+
+  @override
+  bool shouldRepaint(ScannerOverlay oldDelegate) {
+    return false;
+  }
+}
 
 
 
@@ -422,7 +422,7 @@ class BarcodeOverlay extends CustomPainter {
     final qrEdgePainter = Paint()
       ..color = timelyColor
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 413
+      ..strokeWidth = 4
       ..style = PaintingStyle.stroke;
     // ..style = PaintingStyle.stroke;
     // ..blendMode = BlendMode.dst;

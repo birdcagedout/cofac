@@ -10,7 +10,7 @@
             "name": "Current Device",
             "request": "launch",
             "type": "dart",
-            "program": "lib/iv_test.dart"
+            "program": "lib/aes_test.dart"
         },
     ]
 }

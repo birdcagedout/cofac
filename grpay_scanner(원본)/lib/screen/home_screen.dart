@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:grpay_scanner/const/const.dart';
 import 'package:grpay_scanner/core/staff_store_data.dart';
 import 'package:grpay_scanner/screen/result_screen.dart';
 import '/screen/scanner_screen.dart';
@@ -15,29 +14,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final DateTime today = DateTime.now();
-  // 오늘의 1달 전 날짜(5월 31일의 한달 전은 4월의 마지막날인 4월 30일)
-  final DateTime lastMonth = DateTime(
-    DateTime.now().year,
-    DateTime.now().month - 1,
-    DateTime.now().day > DateTime(DateTime.now().year, DateTime.now().month, 0).day
-        ? DateTime(DateTime.now().year, DateTime.now().month, 0).day
-        : DateTime.now().day,
-    DateTime.now().hour,
-  );
+  final now = DateTime.now();
+  final lastMonth = DateTime(DateTime.now().year, DateTime.now().month-1);
   DateTime selectedDate = DateTime.now();
-  String selectedStore = "";
+  String _selectedStore = "";
   
   // 데이터 저장 ==> 전역변수 ticketData
-
-  @override
-  void initState() {
-    super.initState();
-
-    selectedDate = lastMonth.isBefore(DateTime(2024, 5, 1))
-        ? DateTime(2024, 5, 1)
-        : lastMonth;
-  }
 
   
 
@@ -161,11 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (selectedValue == null) return;
 
                   // 날짜 입력이 제대로 들어오면 push
-                  selectedStore = selectedValue;
+                  _selectedStore = selectedValue;
                   Map<String, List<int>>? dataFromTheStore = await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {
-                        return ScannerScreen(selectedStore: selectedStore,);
+                        return ScannerScreen(selectedStore: _selectedStore,);
                       },
                     ),
                   );
@@ -179,8 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   // 리턴값 표에 저장
                   for(var staff in dataFromTheStore.keys) {
                     for(var eachNumber in dataFromTheStore[staff]!) {
-                      if(!ticketData[selectedStore]![staff]!.contains(eachNumber)) {
-                        ticketData[selectedStore]![staff] = [...ticketData[selectedStore]![staff]!, ...dataFromTheStore[staff]!];
+                      if(!ticketData[_selectedStore]![staff]!.contains(eachNumber)) {
+                        ticketData[_selectedStore]![staff] = [...ticketData[_selectedStore]![staff]!, ...dataFromTheStore[staff]!];
                       }
                     }
                   }
@@ -189,9 +171,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   // '(식당별)소계' 저장 ==> 리턴값을 받은 타이밍에 반드시 계산하여 저장(나중에 _selectedStore는 달라질 수도 있다)
                   int total = 0;
                   for(var staff in staffNameList) {
-                    total += ticketData[selectedStore]![staff]!.length;
+                    total += ticketData[_selectedStore]![staff]!.length;
                   }
-                  ticketData[selectedStore]!['소계'] = List.filled(total, 0);
+                  ticketData[_selectedStore]!['소계'] = List.filled(total, 0);
                 },
                 child: Text("스캔하기", style: TextStyle(fontSize: 20,),),
               ),
@@ -245,11 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 CupertinoButton(
                   child: Text('완료'),
-                  onPressed: () {
-                    targetYear = selectedDate.year;
-                    targetMonth = selectedDate.month;
-                    Navigator.of(context).pop();
-                  }
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -259,8 +237,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 mode: CupertinoDatePickerMode.monthYear,
                 // dateOrder: DatePickerDateOrder.ymd,
                 minimumDate: DateTime(2024, 5),
-                maximumDate: today,
-                initialDateTime: selectedDate,
+                maximumDate: now,
+                initialDateTime: lastMonth.isBefore(DateTime(2024, 5))
+                    ? DateTime(2024, 5)
+                    : lastMonth,
                 onDateTimeChanged: (DateTime selected) {
                   SystemSound.play(SystemSoundType.click);
                   HapticFeedback.mediumImpact();
