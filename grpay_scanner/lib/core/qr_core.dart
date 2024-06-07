@@ -177,7 +177,7 @@ QRInfo getValidQRInfo(String rawQR) {
 
   String org = baseQR.substring(4, 6);
   String dept = baseQR.substring(6, 7);
-  if (org != "H2" || !["1", "A", "W"].contains(dept)) return returnValue;
+  if (org != "H2" || !["1", "A", "S"].contains(dept)) return returnValue;
 
   String id = baseQR.substring(9, 13);
   if (!staffIDList.contains(id)) return returnValue;
@@ -213,7 +213,7 @@ QRInfo getValidQRInfo(String rawQR) {
     B32B[base13[4]]! * 59 +
     B32B[base13[5]]! * 61) %
     32)]!;
-  String h2 = B32F[((B32B[base13[6] == 'W' ? 'V' : base13[6]]! * 13 +
+  String h2 = B32F[((B32B[base13[6]]! * 13 +
     B32B[base13[7]]! * 29 +
     B32B[base13[8]]! * 37 +
     B32B[base13[9]]! * 47 +

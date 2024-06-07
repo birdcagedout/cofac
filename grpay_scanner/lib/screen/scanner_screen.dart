@@ -118,8 +118,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   return const SizedBox();
                 }
 
-                final scannedBarcode = barcodeCapture.barcodes.first;
-                print("바코드 발견");
+                List<Barcode> scannedBarcodes = barcodeCapture.barcodes;
+                print("어떤 QR 발견");
 
                 // No barcode corners, or size, or no camera preview size.
                 // 안드로이드일 때는 barcodeCapture.size가 (0,0)으로 안 나온다. 아이폰일 때만 나온다
@@ -133,35 +133,43 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 // }
 
 
-                // 내 QR이 맞는지 검증
-                String rawQR = scannedBarcode.displayValue!;
-                QRInfo qrInfo = getValidQRInfo(rawQR);
+                // 여러개의 scannedBarcodes 중 내 QR만 골라냄
+                List<Barcode> myQRs = [];
+                for(var eachQR in scannedBarcodes) {
 
-                // 아니면 리턴
-                if(qrInfo.isMyQR == false) {
-                  return const SizedBox();
-                }
+                  // 내 QR이 맞는지 검증
+                  String rawQR = eachQR.displayValue!;
+                  QRInfo qrInfo = getValidQRInfo(rawQR);
 
-                // 이제 내 QR이므로 ==> Set에 추가 (리턴값: 새로운 값이면 true)
-                bool isNewQR = scannedQRSet.value.add(qrInfo.getString());
+                  // 내 QR인 경우만 처리 (삭제하면 안됨: scannedBarcodes 리스트 순서를 1개 건너뛰게 됨)
+                  if(qrInfo.isMyQR == true) {
+                    // myQRs에 등록
+                    myQRs.add(eachQR);
 
-                // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
-                if(isNewQR) {
+                    // 이제 내 QR이므로 ==> Set에 추가 (리턴값: 새로운 값이면 true)
+                    bool isNewQR = scannedQRSet.value.add(qrInfo.getString());
 
-                  // 새로운 QR이 들어올 때마다 Map애 등록
-                  if(scannedQRrow[qrInfo.name] == null) {
-                    scannedQRrow[qrInfo.name] = [];
+                    // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
+                    if(isNewQR) {
+
+                      // 새로운 QR이 들어올 때마다 Map애 등록
+                      if(scannedQRrow[qrInfo.name] == null) {
+                        scannedQRrow[qrInfo.name] = [];
+                      }
+                      scannedQRrow[qrInfo.name]!.add(qrInfo.number);
+
+                      color4this = Colors.red;
+                      // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        setState(() {});
+                      });
+                    } else {
+                      color4this = Colors.green;
+                    }
                   }
-                  scannedQRrow[qrInfo.name]!.add(qrInfo.number);
-
-                  color4this = Colors.red;
-                  // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    setState(() {});
-                  });
-                } else {
-                  color4this = Colors.green;
                 }
+
+
 
 
                 // 안드로이드
@@ -172,7 +180,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
                 return CustomPaint(
                   painter: BarcodeOverlay(
-                    barcodeCorners: scannedBarcode.corners,
+                    myQRs: myQRs,
                     barcodeSize: barcodeCapture.size,
                     boxFit: BoxFit.contain,
                     cameraPreviewSize: value.size,
@@ -343,14 +351,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
 // 스캔된 바코드 주변을 그리는 CustomPainer
 class BarcodeOverlay extends CustomPainter {
   BarcodeOverlay({
-    required this.barcodeCorners,
+    required this.myQRs,
     required this.barcodeSize,
     required this.boxFit,
     required this.cameraPreviewSize,
     required this.timelyColor,
   });
 
-  final List<Offset> barcodeCorners;
+  // final List<Offset> barcodeCorners;
+  final List<Barcode> myQRs;
   final Size barcodeSize;
   final BoxFit boxFit;
   final Size cameraPreviewSize;
@@ -360,75 +369,79 @@ class BarcodeOverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
 
-    // android/ios 공통
-    if (barcodeCorners.isEmpty || cameraPreviewSize.isEmpty) {
-      debugPrint("[android] 바코드corner가 없거나, 카메라프리뷰size가 없다");
-      return;
+    for(var eachQR in myQRs) {
+      final List<Offset> barcodeCorners = eachQR.corners;
+
+      // android/ios 공통
+      if (barcodeCorners.isEmpty || cameraPreviewSize.isEmpty) {
+        debugPrint("[android] 바코드corner가 없거나, 카메라프리뷰size가 없다");
+        return;
+      }
+
+      // iOS인 경우만 barcodeSize가 필요하다
+      if(defaultTargetPlatform == TargetPlatform.iOS && barcodeSize.isEmpty) {
+        debugPrint("[iOS] 바코드corner가 없거나, 바코드size가 없거나, 카메라프리뷰size가 없다");
+        return;
+      }
+
+      // applyBoxFit(BoxFit.contain, sourceSize, destSize)
+      // ==> 원본사이즈(카메라프리뷰)가 화면표시가능한최대사이즈(size)로 BoxFit.contain 스케일링될 때 FittedSize 타입의 adjustedSize를 리턴한다
+      // FittedSize 타입은 2개의 속성을 가진다 (adjustedSize.source, adjustedSize.destination)
+      // 예) source=Size(120, 80)가 dest=(300, 300) 영역에 BoxFit.contain으로 그려지면
+      //    adjustedSize.source는 Size(120,80)으로 원본과 동일하고, adjustedSize.destination=Size(300, 200)이 된다
+      //    이때 widthRatio=300/120=2.5, heightRatio=200/80=2.5
+      final adjustedSize = applyBoxFit(boxFit, cameraPreviewSize, size);
+
+      double verticalPadding = size.height - adjustedSize.destination.height;
+      double horizontalPadding = size.width - adjustedSize.destination.width;
+
+      if (verticalPadding > 0) {
+        verticalPadding = verticalPadding / 2;
+      } else {
+        verticalPadding = 0;
+      }
+
+      if (horizontalPadding > 0) {
+        horizontalPadding = horizontalPadding / 2;
+      } else {
+        horizontalPadding = 0;
+      }
+
+      final double ratioWidth;
+      final double ratioHeight;
+
+      // 아이폰일 때
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        ratioWidth = barcodeSize.width / adjustedSize.destination.width;
+        ratioHeight = barcodeSize.height / adjustedSize.destination.height;
+      }
+      // 안드로이드일 때
+      else {
+        ratioWidth = cameraPreviewSize.width / adjustedSize.destination.width;
+        ratioHeight = cameraPreviewSize.height / adjustedSize.destination.height;
+      }
+
+      final List<Offset> adjustedOffset = [
+        for (final offset in barcodeCorners)
+          Offset(
+            offset.dx / ratioWidth + horizontalPadding,
+            offset.dy / ratioHeight + verticalPadding,
+          ),
+      ];
+
+      final qrEdgePath = Path()..addPolygon(adjustedOffset, true);
+
+      final qrEdgePainter = Paint()
+        ..color = timelyColor
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 4
+        ..style = PaintingStyle.stroke;
+      // ..style = PaintingStyle.stroke;
+      // ..blendMode = BlendMode.dst;
+
+
+      canvas.drawPath(qrEdgePath, qrEdgePainter);
     }
-
-    // iOS인 경우만 barcodeSize가 필요하다
-    if(defaultTargetPlatform == TargetPlatform.iOS && barcodeSize.isEmpty) {
-      debugPrint("[iOS] 바코드corner가 없거나, 바코드size가 없거나, 카메라프리뷰size가 없다");
-      return;
-    }
-
-    // applyBoxFit(BoxFit.contain, sourceSize, destSize)
-    // ==> 원본사이즈(카메라프리뷰)가 화면표시가능한최대사이즈(size)로 BoxFit.contain 스케일링될 때 FittedSize 타입의 adjustedSize를 리턴한다
-    // FittedSize 타입은 2개의 속성을 가진다 (adjustedSize.source, adjustedSize.destination)
-    // 예) source=Size(120, 80)가 dest=(300, 300) 영역에 BoxFit.contain으로 그려지면
-    //    adjustedSize.source는 Size(120,80)으로 원본과 동일하고, adjustedSize.destination=Size(300, 200)이 된다
-    //    이때 widthRatio=300/120=2.5, heightRatio=200/80=2.5
-    final adjustedSize = applyBoxFit(boxFit, cameraPreviewSize, size);
-
-    double verticalPadding = size.height - adjustedSize.destination.height;
-    double horizontalPadding = size.width - adjustedSize.destination.width;
-
-    if (verticalPadding > 0) {
-      verticalPadding = verticalPadding / 2;
-    } else {
-      verticalPadding = 0;
-    }
-
-    if (horizontalPadding > 0) {
-      horizontalPadding = horizontalPadding / 2;
-    } else {
-      horizontalPadding = 0;
-    }
-
-    final double ratioWidth;
-    final double ratioHeight;
-
-    // 아이폰일 때
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      ratioWidth = barcodeSize.width / adjustedSize.destination.width;
-      ratioHeight = barcodeSize.height / adjustedSize.destination.height;
-    }
-    // 안드로이드일 때
-    else {
-      ratioWidth = cameraPreviewSize.width / adjustedSize.destination.width;
-      ratioHeight = cameraPreviewSize.height / adjustedSize.destination.height;
-    }
-
-    final List<Offset> adjustedOffset = [
-      for (final offset in barcodeCorners)
-        Offset(
-          offset.dx / ratioWidth + horizontalPadding,
-          offset.dy / ratioHeight + verticalPadding,
-        ),
-    ];
-
-    final qrEdgePath = Path()..addPolygon(adjustedOffset, true);
-
-    final qrEdgePainter = Paint()
-      ..color = timelyColor
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 413
-      ..style = PaintingStyle.stroke;
-    // ..style = PaintingStyle.stroke;
-    // ..blendMode = BlendMode.dst;
-
-
-    canvas.drawPath(qrEdgePath, qrEdgePainter);
   }
 
   @override
