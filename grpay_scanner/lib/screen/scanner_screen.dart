@@ -3,6 +3,7 @@ import 'dart:async';
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:grpay_scanner/core/staff_store_data.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../ext/scanned_barcode_label.dart';
 import '../core/qr_core.dart';
@@ -27,7 +28,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
   final ValueNotifier<Set<String>> scannedQRSet = ValueNotifier<Set<String>>({});   // Set이라 중복 제거. "02김재형" 형태로 저장됨
   final Map<String, List<int>> scannedQRrow = {};                                   // {'김재형': [1, 3, 8], '이재환': [10, 11], '정헌옥': []}
 
-  Color color4this = Colors.red;
 
   // 현재 카메라에 QR이 있는지 여부를 상태로 저장
   ValueNotifier<bool> isQRpresent = ValueNotifier<bool>(false);   // 현재 카메라에 QR이 있는지 여부(있으면 true, 없으면 false)
@@ -135,40 +135,43 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
                 // 여러개의 scannedBarcodes 중 내 QR만 골라냄
                 List<Barcode> myQRs = [];
+                bool anyNewQRFound = false;
                 for(var eachQR in scannedBarcodes) {
 
                   // 내 QR이 맞는지 검증
                   String rawQR = eachQR.displayValue!;
                   QRInfo qrInfo = getValidQRInfo(rawQR);
 
-                  // 내 QR인 경우만 처리 (삭제하면 안됨: scannedBarcodes 리스트 순서를 1개 건너뛰게 됨)
+                  // 내 QR인 경우만 처리 (리스트에서 삭제하면 안됨: scannedBarcodes 리스트 순서를 1개 건너뛰게 됨)
                   if(qrInfo.isMyQR == true) {
-                    // myQRs에 등록
-                    myQRs.add(eachQR);
 
                     // 이제 내 QR이므로 ==> Set에 추가 (리턴값: 새로운 값이면 true)
                     bool isNewQR = scannedQRSet.value.add(qrInfo.getString());
 
+                    // myQRs에 등록
+                    eachQR.edgeColor = isQR ? colorTable[qrInfo.id]! : Colors.transparent;
+                    myQRs.add(eachQR);
+
                     // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
                     if(isNewQR) {
+                      anyNewQRFound = true;
 
                       // 새로운 QR이 들어올 때마다 Map애 등록
                       if(scannedQRrow[qrInfo.name] == null) {
                         scannedQRrow[qrInfo.name] = [];
                       }
                       scannedQRrow[qrInfo.name]!.add(qrInfo.number);
-
-                      color4this = Colors.red;
-                      // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        setState(() {});
-                      });
-                    } else {
-                      color4this = Colors.green;
                     }
                   }
                 }
 
+                // 이번 build에서 단 하나라도 새로운 QR이 있었다면 setState() 호출
+                if(anyNewQRFound) {
+                  // 새로운 QR을 발견할 때 setState()해주되, 당장 아니고 현재 build가 끝났을 때 비동기로 함
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {});
+                  });
+                }
 
 
 
@@ -184,7 +187,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     barcodeSize: barcodeCapture.size,
                     boxFit: BoxFit.contain,
                     cameraPreviewSize: value.size,
-                    timelyColor: isQR == true ? color4this : Colors.transparent,
                   ),
                 );
               },
@@ -355,7 +357,6 @@ class BarcodeOverlay extends CustomPainter {
     required this.barcodeSize,
     required this.boxFit,
     required this.cameraPreviewSize,
-    required this.timelyColor,
   });
 
   // final List<Offset> barcodeCorners;
@@ -363,7 +364,6 @@ class BarcodeOverlay extends CustomPainter {
   final Size barcodeSize;
   final BoxFit boxFit;
   final Size cameraPreviewSize;
-  final Color timelyColor;
 
 
   @override
@@ -432,13 +432,10 @@ class BarcodeOverlay extends CustomPainter {
       final qrEdgePath = Path()..addPolygon(adjustedOffset, true);
 
       final qrEdgePainter = Paint()
-        ..color = timelyColor
+        ..color = eachQR.edgeColor
         ..strokeCap = StrokeCap.round
         ..strokeWidth = 4
         ..style = PaintingStyle.stroke;
-      // ..style = PaintingStyle.stroke;
-      // ..blendMode = BlendMode.dst;
-
 
       canvas.drawPath(qrEdgePath, qrEdgePainter);
     }

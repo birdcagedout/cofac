@@ -81,26 +81,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
             // 두번째=작업
-            const Column(
+            Column(
               children: [
                 // SizedBox(height: 15,),
-                Row(
+                const Row(
                   children: [Text("작업", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),)],
                 ),
-                SizedBox(height: 15,),
+                const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Expanded(child: Text("완료")), Column(
-                    children: [
-                      Text("가맹점 0개"),
-                      Text("스캔됨 0개"),
-                    ],
-                  ),],
+                  children: [
+                    const Expanded(child: Text("완료")),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("가맹점 ${doneStores.values.where((isDone) => isDone).length}개"),
+                        Text("스캔됨 ${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }개"),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 15,),
+                const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("예정"), Text("가맹점 13개")],
+                  children: [const Text("예정"), Text("가맹점 ${doneStores.values.where((isDone) => !isDone).length}개")],
                 ),
               ],
             ),
@@ -156,11 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () async {
-                  // 날짜 입력 받기
+                  // 스캔할 가맹점 입력 받기
                   final String? selectedValue = await _showDialog(context);
                   if (selectedValue == null) return;
 
-                  // 날짜 입력이 제대로 들어오면 push
+                  // 가맹점 입력이 제대로 들어오면 push
+                  // 리턴값까지 받아옴
                   selectedStore = selectedValue;
                   Map<String, List<int>>? dataFromTheStore = await Navigator.of(context).push(
                     MaterialPageRoute(
@@ -176,22 +181,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     return;
                   }
 
-                  // 리턴값 표에 저장
+                  // 아래는 모두 저장하기 누른 경우
+
+                  
+
+                  // 리턴값을 식권데이터 표에 저장
                   for(var staff in dataFromTheStore.keys) {
                     for(var eachNumber in dataFromTheStore[staff]!) {
                       if(!ticketData[selectedStore]![staff]!.contains(eachNumber)) {
-                        ticketData[selectedStore]![staff] = [...ticketData[selectedStore]![staff]!, ...dataFromTheStore[staff]!];
+                        ticketData[selectedStore]![staff]!.add(eachNumber);
                       }
                     }
                   }
                   // print(ticketData);
 
-                  // '(식당별)소계' 저장 ==> 리턴값을 받은 타이밍에 반드시 계산하여 저장(나중에 _selectedStore는 달라질 수도 있다)
+                  // '(식당별)소계' 저장 ==> 리턴값을 받은 타이밍에 반드시 계산하여 저장(나중에 selectedStore는 달라질 수도 있다)
                   int total = 0;
                   for(var staff in staffNameList) {
                     total += ticketData[selectedStore]![staff]!.length;
                   }
-                  ticketData[selectedStore]!['소계'] = List.filled(total, 0);
+                  ticketData[selectedStore]!['소계'] = List.filled(total, 0);   // 스캔된 식권이 5개이면 [0,0,0,0,0]
+
+                  // 스캔 마친 가게 + 스캔완료 개수 update
+                  setState(() {
+                    doneStores[selectedStore] = true;
+                  });
                 },
                 child: Text("스캔하기", style: TextStyle(fontSize: 20,),),
               ),

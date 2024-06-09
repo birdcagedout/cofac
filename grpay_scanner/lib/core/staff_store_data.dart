@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
+
 ///=============================================
-// 13개
+/// 13개
 const List<String> storeList = [
   '신가네칼국수',
   '파리바게트',
@@ -16,7 +18,7 @@ const List<String> storeList = [
   '양자강',
 ];
 
-// 22명
+/// 직원 22명 이름
 const List<String> staffNameList = [
   '송재혁',
   '이재환',
@@ -42,6 +44,8 @@ const List<String> staffNameList = [
   '이지혜'
 ];
 
+
+/// 직원 22명의 ID(내선번호)
 const List<String> staffIDList = [
   '2610',
   '2591',
@@ -67,21 +71,50 @@ const List<String> staffIDList = [
   '2113'
 ];
 
+/// 22명 각각의 QR 테두리 색깔
+final List<Color> edgeColorList = [
+  Color(0xFFff1493),
+  Color(0xffa14e14),
+  Color(0xff5b4acb),
+  Color(0xFF3cb371),
+  Color(0xFF008b8b),
+  Color(0xFF9acd32),
+  Color(0xff0a0abe),
+  Color(0xFFff4500),
+  Color(0xFFffa500),
+  Color(0xffecec03),
+  Color(0xFF7cfc00),
+  Color(0xff78a231),
+  Color(0xFFba55d3),
+  Color(0xFFdc143c),
+  Color(0xFF00ffff),
+  Color(0xFF00bfff),
+  Color(0xFF0000ff),
+  Color(0xFFff00ff),
+  Color(0xFF1e90ff),
+  Color(0xFFdb7093),
+  Color(0xFFeee8aa),
+  Color(0xFFffa07a),
+];
 
-// 직원 lookup table (code -> name) ==> {2610: 송재혁, 2591: 이재환, 2595: 정헌옥, ...}
-// staffTable['2596'] = '김재형'
+
+/// 직원 lookup table (code -> name) ==> {2610: 송재혁, 2591: 이재환, 2595: 정헌옥, ...}
+/// staffTable['2596'] = '김재형'
 final Map<String, String> staffTable = Map.fromIterables(staffIDList, staffNameList);
 
 
+/// 직원별 Color lookup table (code -> color)
+final Map<String, Color> colorTable = Map.fromIterables(staffIDList, edgeColorList);
 
-// 식권 Data 초기화: Map(k=식당) 속의 Map(k=직원)
+
+
+// 전체 식권 Data: Map(k=식당) 속의 Map(k=직원)
 // {
-//    '신가네칼국수': {'송재혁': [1, 5, 10], '이재환': [6, 9], ...},
-//    '파리바게트':  {'송재혁': [], '이재환': [10, 11, 12, 20], ...},
+//    '신가네칼국수': {'송재혁': [1, 5, 10], '이재환': [6, 9], ... },
+//    '파리바게트':  {'송재혁': [], '이재환': [10, 11, 12, 20], ... },
 //    ...
 // }
-// final이어도 참조형이므로 값 변경 가능
-// ==> count = ticketData['분식사']!['김재형']!.length;
+// final이어도 참조형이므로 내용 변경 가능
 final Map<String, Map<String, List<int>>> ticketData = Map.fromEntries(
   storeList.map(
     (store) => MapEntry(
@@ -95,6 +128,9 @@ final Map<String, Map<String, List<int>>> ticketData = Map.fromEntries(
   ),
 );
 
+
+// 식당 스캔 여부 저장
+final Map<String, bool> doneStores = { for(var store in storeList) store: false };
 ///=============================================
 
 
