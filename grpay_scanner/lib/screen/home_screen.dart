@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,40 +46,61 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("홈", style: TextStyle(fontSize: 25,),), centerTitle: true,),
+      appBar: AppBar(title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("급량  ", style: TextStyle(fontSize: 25,),),
+          Container(width: 30, height: 30, child: Image.asset('asset/img/grpay2.png', fit: BoxFit.contain,)),
+          const Text("  페이", style: TextStyle(fontSize: 25,),),
+        ],
+      ), centerTitle: true,),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 0),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
         child: Column(
           children: [
+
             // 첫번째=설정
             Column(
               children: [
-                // SizedBox(height: 15,),
+                const Divider(
+                  height: 20,
+                  thickness: 1,
+                  indent: 0,
+                  endIndent: 0,
+                  color: Color(0x739E9E9E),
+                ),
+
                 Row(
                   children: [
                     const Text("설정", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
-                    IconButton(onPressed: showDatePicker, icon: Icon(Icons.settings), iconSize: 25,),
+                    IconButton(onPressed: showDatePicker, icon: Icon(Icons.settings), iconSize: 25, color: Colors.deepPurple,),
                   ],
                 ),
                 const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [const Expanded(child: Text("기준월")), Text("${selectedDate.year}년 ${selectedDate.month}월"),],
+                  children: [
+                    const Expanded(child: Text("기준연월", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600,),)),
+                    Text("${selectedDate.year}년 ${selectedDate.month}월", style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.w600,),),
+                  ],
                 ),
-                const SizedBox(height: 15,),
-                const Row(
+                const SizedBox(height: 10,),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("가맹점"), Text("13개")],
-                ),
-                const SizedBox(height: 15,),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("스캔방법"), Text("스캔전 묻기 + 스캔후 저장")],
+                  children: [
+                    const Text("가맹점 / 직원수", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
+                    Text("${storeList.length}개 / ${staffIDList.length}명", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
+                  ],
                 ),
               ],
             ),
-
-            const SizedBox(height: 30,),
+            const Divider(
+              height: 40,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+              color: Color(0x739E9E9E),
+            ),
 
 
             // 두번째=작업
@@ -87,16 +110,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Row(
                   children: [Text("작업", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),)],
                 ),
-                const SizedBox(height: 15,),
+                const SizedBox(height: 10,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(child: Text("완료")),
+                    Expanded(child: Text("완료", style: TextStyle(color: Colors.green[700], fontSize: 17, fontWeight: FontWeight.w600),)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("가맹점 ${doneStores.values.where((isDone) => isDone).length}개"),
-                        Text("스캔됨 ${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }개"),
+                        Text("가맹점 ${doneStores.values.where((isDone) => isDone).length}개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600,),),
+                        Text("스캔됨 ${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600),),
                       ],
                     ),
                   ],
@@ -104,14 +127,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [const Text("예정"), Text("가맹점 ${doneStores.values.where((isDone) => !isDone).length}개")],
+                  children: [
+                    const Text("예정", style: TextStyle(color: Colors.redAccent, fontSize: 17, fontWeight: FontWeight.w600,),),
+                    Text("가맹점 ${doneStores.values.where((isDone) => !isDone).length}개", style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.w600,),)],
                 ),
               ],
             ),
 
-            const SizedBox(height: 30,),
+            const Divider(
+              height: 40,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+              color: Color(0x739E9E9E),
+            ),
 
-            // 사용방법
+            // 세번째=사용방법
             const Column(
               children: [
                 // SizedBox(height: 15,),
@@ -136,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("4. 저장하기를 누른다")],
+                  children: [Text("4. 저장하기를 누른다 (다시 1번부터 반복)")],
                 ),
                 SizedBox(height: 15,),
                 Row(
@@ -146,17 +177,25 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 40,),
+            const Divider(
+              height: 40,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+              color: Color(0x739E9E9E),
+            ),
 
             // 스캔하기 버튼
             SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 50,
-              child: OutlinedButton(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.qr_code),
+                label: const Text("스캔하기", style: TextStyle(fontSize: 20,),),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.red[700],
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
                   side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () async {
@@ -183,8 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // 아래는 모두 저장하기 누른 경우
 
-                  
-
                   // 리턴값을 식권데이터 표에 저장
                   for(var staff in dataFromTheStore.keys) {
                     for(var eachNumber in dataFromTheStore[staff]!) {
@@ -207,7 +244,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     doneStores[selectedStore] = true;
                   });
                 },
-                child: Text("스캔하기", style: TextStyle(fontSize: 20,),),
               ),
             ),
 
@@ -217,14 +253,28 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 50,
-              child: OutlinedButton(
+              child: OutlinedButton.icon(
+                icon: Icon(Icons.list_alt),
+                label: Text("결과보기", style: TextStyle(fontSize: 20,),),
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.green[800],
+                  backgroundColor: Colors.blue[700],
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
                   side: BorderSide(color: Colors.transparent,),
                 ),
                 onPressed: () {
+                  // "개인별 합계" + "합계의 소계(=전체 총계)"를 계산한다
+                  int totalForEveryone = 0;
+                  for(var staff in staffNameList) {
+                    int totalForEachOne = 0;
+                    for(var store in storeList) {
+                      totalForEachOne += ticketData[store]![staff]!.length;
+                    }
+                    ticketData['합계']![staff] = List.filled(totalForEachOne, 1);   // 개인별 합계
+                    totalForEveryone += totalForEachOne;
+                  }
+                  ticketData['합계']!['소계'] = List.filled(totalForEveryone, 1);   // 합계의 소계(=전체 총계)
+                  
                   // DataTable 페이지로 넘어간다
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -234,7 +284,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 },
-                child: Text("결과보기", style: TextStyle(fontSize: 20,),),
               ),
             ),
           ],

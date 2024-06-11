@@ -73,28 +73,28 @@ const List<String> staffIDList = [
 
 /// 22명 각각의 QR 테두리 색깔
 final List<Color> edgeColorList = [
-  Color(0xFFff1493),
-  Color(0xffa14e14),
-  Color(0xff5b4acb),
-  Color(0xFF3cb371),
-  Color(0xFF008b8b),
-  Color(0xFF9acd32),
-  Color(0xff0a0abe),
-  Color(0xFFff4500),
-  Color(0xFFffa500),
-  Color(0xffecec03),
-  Color(0xFF7cfc00),
-  Color(0xff78a231),
-  Color(0xFFba55d3),
-  Color(0xFFdc143c),
-  Color(0xFF00ffff),
-  Color(0xFF00bfff),
-  Color(0xFF0000ff),
-  Color(0xFFff00ff),
-  Color(0xFF1e90ff),
-  Color(0xFFdb7093),
-  Color(0xFFeee8aa),
-  Color(0xFFffa07a),
+  const Color(0xFFff1493),
+  const Color(0xffa14e14),
+  const Color(0xff5b4acb),
+  const Color(0xFF3cb371),
+  const Color(0xFF008b8b),
+  const Color(0xFF9acd32),
+  const Color(0xff0a0abe),
+  const Color(0xFFff4500),
+  const Color(0xFFffa500),
+  const Color(0xffecec03),
+  const Color(0xFF7cfc00),
+  const Color(0xff78a231),
+  const Color(0xFFba55d3),
+  const Color(0xFFdc143c),
+  const Color(0xFF00ffff),
+  const Color(0xFF00bfff),
+  const Color(0xFF0000ff),
+  const Color(0xFFff00ff),
+  const Color(0xFF1e90ff),
+  const Color(0xFFdb7093),
+  const Color(0xFFeee8aa),
+  const Color(0xFFffa07a),
 ];
 
 
@@ -116,7 +116,7 @@ final Map<String, Color> colorTable = Map.fromIterables(staffIDList, edgeColorLi
 // }
 // final이어도 참조형이므로 내용 변경 가능
 final Map<String, Map<String, List<int>>> ticketData = Map.fromEntries(
-  storeList.map(
+  [...storeList, '합계'].map(
     (store) => MapEntry(
       store,
       Map.fromEntries(

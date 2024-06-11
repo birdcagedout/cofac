@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../const/const.dart';
 import '../core/staff_store_data.dart';
@@ -12,18 +16,18 @@ class RestaurantDataSource extends DataGridSource {
   final List<DataGridRow> _restaurants;
 
   RestaurantDataSource({required this.ticketData})
-      : _restaurants = List<DataGridRow>.generate(storeList.length, (index) {
+      : _restaurants = List<DataGridRow>.generate(storeList.length + 1, (index) {
     return DataGridRow(
       cells: [
         DataGridCell<String> (
           columnName: 'restaurant',
-          value: storeList[index] + "(" + ticketData[storeList[index]]!['소계']!.length.toString() + ")",
+          value: ticketData.keys.toList()[index] + "(" + ticketData[ticketData.keys.toList()[index]]!['소계']!.length.toString() + ")"
         ),
 
         for (var staff in staffNameList)
           DataGridCell<int> (
             columnName: staff,
-            value: ticketData[storeList[index]]![staff]!.length,
+            value: ticketData[ticketData.keys.toList()[index]]![staff]!.length,
           ),
       ],
     );
@@ -35,7 +39,7 @@ class RestaurantDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     int rowIndex = _restaurants.indexOf(row);
-    Color bgColor = rowIndex.isOdd ? Colors.grey[200]! : Colors.transparent;
+    Color bgColor = rowIndex.isOdd ? Colors.grey[200]! : Colors.white;
 
     return DataGridRowAdapter(
       color: bgColor,
@@ -76,6 +80,7 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(title: Text('${targetYear}년 $targetMonth월 식권 정산', style: TextStyle(fontSize: 25,),), centerTitle: true,),
       body: SafeArea(
         child: Column(
@@ -86,71 +91,104 @@ class _ResultScreenState extends State<ResultScreen> {
                 source: restaurantDataSource,
                 frozenColumnsCount: 1,        // 첫번째 컬럼 고정 (좌우 스크롤 시)
                 frozenRowsCount: 0,
+                rowHeight: 42,
                 columns: [
                   // 첫번째 컬럼 헤더
                   GridColumn(
                     columnName: 'restaurant',
+                    columnWidthMode: ColumnWidthMode.auto,
+                    autoFitPadding: const EdgeInsets.all(10),
                     width: 110,
                     label: Container(
-                      color: Colors.green[300],
+                      color: Colors.black54,
                       padding: EdgeInsets.symmetric(horizontal: 5),
                       alignment: Alignment.center,
-                      child: Text('식당(개수)', style: TextStyle(fontSize: 16,),),
+                      child: Text('식당(개수)', style: TextStyle(fontSize: 16, color: Colors.white,),),
                     ),
                   ),
                   // 나머지 컬럼 헤더
                   for (var staff in staffNameList)
                     GridColumn(
                       columnName: staff,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      autoFitPadding: const EdgeInsets.all(10),
                       label: Container(
-                        color: Colors.green[300],
+                        color: Colors.black54,
                         padding: EdgeInsets.symmetric(horizontal: 5),
                         alignment: Alignment.center,
-                        child: Text(staff, style: TextStyle(fontSize: 16,),),
+                        child: Text(staff, style: TextStyle(fontSize: 16, color: Colors.white,),),
                       ),
                     ),
                 ],
               ),
             ),
 
-            // Expanded(
-            //   flex: 1,
-            //   child: OutlinedButton(
-            //     onPressed: () async {
-            //       // await saveExcel(widget.ticketData);
-            //     },
-            //     child: Text('엑셀 파일로 저장'),
-            //   ),
-            // ),
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 0, bottom: 15, left: 10, right: 10,),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: OutlinedButton.icon(
+                    icon: Icon(Icons.ios_share),
+                    label: Text('엑셀 파일로 공유하기', style: TextStyle(fontSize: 20,),),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.green[800],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13),),
+                      side: BorderSide(color: Colors.transparent,),
+                    ),
+                    onPressed: () async {
+                      await saveExcel(widget.ticketData);
+                    },
+                  ),
+                ),
+              ),
+            ),
+
           ],
         ),
       ),
     );
   }
 
-// Future<void> saveExcel(Map<String, Map<String, int>> ticketData) async {
-//   var excel = Excel.createExcel();
-//   Sheet sheet = excel['Sheet1'];
-//
-//   // Add header row
-//   List<String> headerRow = ['식당'] + staffList;
-//   sheet.appendRow(headerRow);
-//
-//   // Add data rows
-//   for (var store in storeList) {
-//     List<dynamic> row = [store];
-//     row.addAll(List<int>.generate(staffList.length, (index) => ticketData[store]![staffList[index]]));
-//     sheet.appendRow(row);
-//   }
-//
-//   // Save the file
-//   Directory directory = await getApplicationDocumentsDirectory();
-//   String path = directory.path;
-//   String fileName = '$path/restaurant_meals.xlsx';
-//   File(fileName)
-//     ..createSync(recursive: true)
-//     ..writeAsBytesSync(excel.encode()!);
-//
-//   print('Excel file saved: $fileName');
-// }
+  Future<void> saveExcel(Map<String, Map<String, List<int>>> ticketData) async {
+    final xlsio.Workbook workbook = xlsio.Workbook();
+    final xlsio.Worksheet sheet = workbook.worksheets[0];
+
+    // Add header row
+    List<String> headerRow = ['식당(개수)'] + staffNameList;
+    for (int i = 0; i < headerRow.length; i++) {
+      sheet.getRangeByIndex(1, i + 1).setText(headerRow[i]);
+    }
+
+    // Add data rows
+    int rowIndex = 2; // Start from row 2 as row 1 is header
+    ticketData.forEach((restaurant, staffData) {
+      List<dynamic> row = [restaurant + "(${staffData['소계']!.length})"];
+      row.addAll(staffNameList.map((staff) => staffData[staff]!.length));
+      for (int i = 0; i < row.length; i++) {
+        sheet.getRangeByIndex(rowIndex, i + 1).setText(row[i].toString());
+      }
+      rowIndex++;
+    });
+
+    // Save the file
+    final List<int> bytes = workbook.saveAsStream();
+    workbook.dispose();
+    final String path = (await getApplicationDocumentsDirectory()).path;
+    final String fileName = '$path/급량페이${targetYear}${targetMonth < 10 ? "0" + targetMonth.toString() : targetMonth.toString()}.xlsx';
+    final File file = File(fileName);
+    await file.writeAsBytes(bytes, flush: true);
+
+    print('Excel file saved: $fileName');
+
+    // Share the file
+    final result = await Share.shareXFiles([XFile(fileName)], text: '엑셀 파일로 저장된 식권 정산 데이터입니다.');
+    if(result.status == ShareResultStatus.success) {
+      debugPrint("공유 성공");
+    } else {
+      debugPrint("공유 실패");
+    }
+  }
 }
