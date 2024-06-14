@@ -184,7 +184,7 @@ class _ResultScreenState extends State<ResultScreen> {
     print('Excel file saved: $fileName');
 
     // Share the file
-    final result = await Share.shareXFiles([XFile(fileName)], text: '엑셀 파일로 저장된 식권 정산 데이터입니다.');
+    final result = await Share.shareXFiles([XFile(fileName)], subject: '급량페이 정산결과(${targetYear}${targetMonth < 10 ? "0" + targetMonth.toString() : targetMonth.toString()})', text: '엑셀 파일로 저장된 식권 정산 데이터입니다.');
     if(result.status == ShareResultStatus.success) {
       debugPrint("공유 성공");
     } else {
