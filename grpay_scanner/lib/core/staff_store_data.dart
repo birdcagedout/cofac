@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 ///=============================================
 /// 13개
@@ -131,6 +132,13 @@ final Map<String, Map<String, List<int>>> ticketData = Map.fromEntries(
 
 // 식당 스캔 여부 저장
 final Map<String, bool> doneStores = { for(var store in storeList) store: false };
+
+
+// 바코드(QR)과 색깔을 함께 저장하는 자료형
+class BarcodeWithColor {
+  Barcode barcode = Barcode();
+  Color color = Colors.transparent;
+}
 ///=============================================
 
 

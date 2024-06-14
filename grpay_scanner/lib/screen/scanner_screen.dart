@@ -134,7 +134,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
                 // 여러개의 scannedBarcodes 중 내 QR만 골라냄
-                List<Barcode> myQRs = [];
+                List<BarcodeWithColor> myQRs = [];
                 bool anyNewQRFound = false;
                 for(var eachQR in scannedBarcodes) {
 
@@ -149,8 +149,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     bool isNewQR = scannedQRSet.value.add(qrInfo.getString());
 
                     // myQRs에 등록
-                    eachQR.edgeColor = isQR ? colorTable[qrInfo.id]! : Colors.transparent;
-                    myQRs.add(eachQR);
+                    BarcodeWithColor qr = BarcodeWithColor();
+                    qr.barcode = eachQR;
+                    qr.color = isQR ? colorTable[qrInfo.id]! : Colors.transparent;
+                    myQRs.add(qr);
 
                     // 이미 있으면(Set이 바뀌지 않았으면) 녹색, 없으면(바뀌었으면) 빨간색
                     if(isNewQR) {
@@ -360,7 +362,7 @@ class BarcodeOverlay extends CustomPainter {
   });
 
   // final List<Offset> barcodeCorners;
-  final List<Barcode> myQRs;
+  final List<BarcodeWithColor> myQRs;
   final Size barcodeSize;
   final BoxFit boxFit;
   final Size cameraPreviewSize;
@@ -369,8 +371,8 @@ class BarcodeOverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
 
-    for(var eachQR in myQRs) {
-      final List<Offset> barcodeCorners = eachQR.corners;
+    for(var eachQRwithColor in myQRs) {
+      final List<Offset> barcodeCorners = eachQRwithColor.barcode.corners;
 
       // android/ios 공통
       if (barcodeCorners.isEmpty || cameraPreviewSize.isEmpty) {
@@ -432,7 +434,7 @@ class BarcodeOverlay extends CustomPainter {
       final qrEdgePath = Path()..addPolygon(adjustedOffset, true);
 
       final qrEdgePainter = Paint()
-        ..color = eachQR.edgeColor
+        ..color = eachQRwithColor.color
         ..strokeCap = StrokeCap.round
         ..strokeWidth = 4
         ..style = PaintingStyle.stroke;
