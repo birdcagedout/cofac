@@ -156,19 +156,35 @@ class _ResultScreenState extends State<ResultScreen> {
     final xlsio.Workbook workbook = xlsio.Workbook();
     final xlsio.Worksheet sheet = workbook.worksheets[0];
 
-    // Add header row
-    List<String> headerRow = ['식당(개수)'] + staffNameList;
+    // 첫 번째 컬럼의 너비 설정 (예: 15 포인트)
+    sheet.getRangeByIndex(1, 1).columnWidth = 15;
+
+    // 컬럼 헤더 넣기: ['식당이름', '소계', '송재혁', '이재환', ...]
+    List<String> headerRow = ['식당이름', '소계'] + staffNameList;
     for (int i = 0; i < headerRow.length; i++) {
-      sheet.getRangeByIndex(1, i + 1).setText(headerRow[i]);
+
+      // 헤더 셀에 테두리 추가
+      var cell = sheet.getRangeByIndex(1, i + 1);
+      cell.cellStyle.borders.all.lineStyle = xlsio.LineStyle.thin;
+
+      // 헤더 셀에 값 넣기
+      cell.setText(headerRow[i]);
     }
 
-    // Add data rows
+    // 데이터 row 넣기: ['신가네', 54, 5, 10, ...]
     int rowIndex = 2; // Start from row 2 as row 1 is header
     ticketData.forEach((restaurant, staffData) {
-      List<dynamic> row = [restaurant + "(${staffData['소계']!.length})"];
+      List<dynamic> row = [restaurant, staffData['소계']!.length];
       row.addAll(staffNameList.map((staff) => staffData[staff]!.length));
+
       for (int i = 0; i < row.length; i++) {
-        sheet.getRangeByIndex(rowIndex, i + 1).setText(row[i].toString());
+
+        // 각 셀에 테두리 추가
+        var cell = sheet.getRangeByIndex(rowIndex, i + 1);
+        cell.cellStyle.borders.all.lineStyle = xlsio.LineStyle.thin;
+
+        // 각 셀에 값 넣기
+        cell.setText(row[i].toString());
       }
       rowIndex++;
     });
