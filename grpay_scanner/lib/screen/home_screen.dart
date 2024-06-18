@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text("급량  ", style: TextStyle(fontSize: 25,),),
-          Container(width: 30, height: 30, child: Image.asset('asset/img/grpay2.png', fit: BoxFit.contain,)),
+          Container(width: 35, height: 35, child: Image.asset('asset/img/grpay.png', fit: BoxFit.contain,)),
           const Text("  페이", style: TextStyle(fontSize: 25,),),
         ],
       ), centerTitle: true,),
@@ -60,99 +60,246 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // 첫번째=설정
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Divider(
-                  height: 20,
-                  thickness: 1,
-                  indent: 0,
-                  endIndent: 0,
-                  color: Color(0x739E9E9E),
-                ),
+                SizedBox(height: 10,),
 
-                // Row(
-                //   children: [
-                //     const Text("설정", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
-                //     IconButton(onPressed: showDatePicker, icon: Icon(Icons.settings), iconSize: 25, color: Colors.deepPurple,),
-                //   ],
-                // ),
-                // const SizedBox(height: 15,),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     const Expanded(child: Text("기준연월", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600,),)),
-                //     Text("${selectedDate.year}년 ${selectedDate.month}월", style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.w600,),),
-                //   ],
-                // ),
-                // const SizedBox(height: 10,),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     const Text("가맹점 / 직원수", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
-                //     Text("${storeList.length}개 / ${staffIDList.length}명", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
-                //   ],
-                // ),
+                const Text("  설정", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),),
                 Container(
                   width: MediaQuery.of(context).size.width,
-                  height: 150,
+                  height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.blue[200],
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: kElevationToShadow[2],
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // 달력
                       Expanded(
                         flex: 3,
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Container(
-                            color: Colors.green[500],
+                          padding: const EdgeInsets.fromLTRB(25, 10, 20, 12),
+                          child: GestureDetector(
+                            onTap: showDatePicker,
+                            child: Stack(
+                              children: [
+                                Image.asset('asset/img/calendar.png', fit: BoxFit.contain,),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('${selectedDate.year}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                                      const SizedBox(height: 7,),
+                                      Text('${selectedDate.month}월', style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 30),),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Expanded(flex: 5, child: Container()),
+                      // 직원, 가맹점
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: kElevationToShadow[2],
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 3),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(Icons.group, size: 30, color: Colors.blue[600],),
+                                      Text("${staffIDList.length}명", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 3, 20, 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(Icons.restaurant, size: 30, color: Colors.amber[600],),
+                                      Text("${storeList.length}개", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 )
               ],
             ),
-            const Divider(
-              height: 40,
-              thickness: 1,
-              indent: 0,
-              endIndent: 0,
-              color: Color(0x739E9E9E),
-            ),
+
+            // 두번째=작업
+            // Column(
+            //   children: [
+            //     // SizedBox(height: 15,),
+            //     const Row(
+            //       children: [Text("작업", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),)],
+            //     ),
+            //     const SizedBox(height: 10,),
+            //     Row(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
+            //         Expanded(child: Text("완료", style: TextStyle(color: Colors.green[700], fontSize: 17, fontWeight: FontWeight.w600),)),
+            //         Column(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             Text("가맹점 ${doneStores.values.where((isDone) => isDone).length}개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600,),),
+            //             Text("스캔됨 ${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600),),
+            //           ],
+            //         ),
+            //       ],
+            //     ),
+            //     const SizedBox(height: 15,),
+            //     Row(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
+            //         const Text("예정", style: TextStyle(color: Colors.redAccent, fontSize: 17, fontWeight: FontWeight.w600,),),
+            //         Text("가맹점 ${doneStores.values.where((isDone) => !isDone).length}개", style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.w600,),)],
+            //     ),
+            //   ],
+            // ),
 
 
             // 두번째=작업
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // SizedBox(height: 15,),
-                const Row(
-                  children: [Text("작업", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),)],
-                ),
-                const SizedBox(height: 10,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text("완료", style: TextStyle(color: Colors.green[700], fontSize: 17, fontWeight: FontWeight.w600),)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("가맹점 ${doneStores.values.where((isDone) => isDone).length}개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600,),),
-                        Text("스캔됨 ${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600),),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("예정", style: TextStyle(color: Colors.redAccent, fontSize: 17, fontWeight: FontWeight.w600,),),
-                    Text("가맹점 ${doneStores.values.where((isDone) => !isDone).length}개", style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.w600,),)],
-                ),
+                SizedBox(height: 20,),
+
+                const Text("  작업", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    color: Colors.yellow[100],
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: kElevationToShadow[2],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex: 17,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(25, 15, 10, 15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: kElevationToShadow[2],
+                            ),
+                            child: Column(
+                              children: [
+
+                                // 맨 위 "완료" 부분
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.assignment_turned_in_outlined, size: 33, color: Colors.green[600],),
+                                      // Text(" 완료", style: TextStyle(fontSize: 20, color: Colors.green[600], fontWeight: FontWeight.bold,),),
+                                    ],
+                                  ),
+                                ),
+
+                                // 완료된 가맹점, 직원 부분
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // 가맹점
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Icon(Icons.restaurant, size: 28, color: Colors.amber[600],),
+                                          const Text(" × ", style: TextStyle(fontSize: 23,),),
+                                          Text("${doneStores.values.where((isDone) => isDone).length}", style: TextStyle(color: Colors.green[700], fontSize: 25, fontWeight: FontWeight.w600,),),
+                                        ],
+                                      ),
+                                      // 직원
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Icon(Icons.qr_code_2, size: 30, color: Colors.deepPurpleAccent,),
+                                          const Text(" × ", style: TextStyle(fontSize: 23,),),
+                                          Text("${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }", style: TextStyle(color: Colors.green[700], fontSize: 25, fontWeight: FontWeight.w600,),),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // 예정
+                      Expanded(
+                        flex: 11,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 15, 25, 15),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: kElevationToShadow[2],
+                            ),
+                            child: Column(
+                              children: [
+
+                                // 맨 위 "예정" 부분
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.pending_actions, size: 33, color: Colors.red[700],),
+                                      // Text(" 예정", style: TextStyle(fontSize: 20, color: Colors.red[700], fontWeight: FontWeight.bold),),
+                                    ],
+                                  ),
+                                ),
+
+                                // 예정인 가맹점
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Icon(Icons.restaurant, size: 30, color: Colors.amber[600],),
+                                      const Text(" × ", style: TextStyle(fontSize: 23,),),
+                                      Text("${doneStores.values.where((isDone) => isDone).length}", style: TextStyle(color: Colors.red[700], fontSize: 25, fontWeight: FontWeight.w600,),),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
 
@@ -169,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // SizedBox(height: 15,),
                 Row(
-                  children: [Text("사용방법", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),)],
+                  children: [Text("사용방법", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),)],
                 ),
                 SizedBox(height: 15,),
                 Row(
@@ -329,7 +476,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 CupertinoButton(
-                  child: Text('완료'),
+                  child: Text('완료', style: TextStyle(color: Colors.black87),),
                   onPressed: () {
                     targetYear = selectedDate.year;
                     targetMonth = selectedDate.month;

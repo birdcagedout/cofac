@@ -56,13 +56,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           children: [
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 90.0),
-                child: Image.asset('asset/img/grpay2.png')),
+                child: Image.asset('asset/img/grpay.png')),
             const SizedBox(height: 5.0),
             const Text(
               APP_TITLE,
               style: TextStyle(
                 fontSize: 60,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const Row(

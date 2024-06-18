@@ -28,7 +28,10 @@ void main() async {
       ],
       title: APP_TITLE_FULL,
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+          primary: Colors.black, // 주요 색상
+        ),
       ),
       home: const SplashScreen(),
     ),
