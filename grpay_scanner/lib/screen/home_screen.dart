@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:grpay_scanner/const/const.dart';
-import 'package:grpay_scanner/core/staff_store_data.dart';
-import 'package:grpay_scanner/screen/result_screen.dart';
+
+import '/const/const.dart';
+import '/core/staff_store_data.dart';
+import '/screen/result_screen.dart';
 import '/screen/scanner_screen.dart';
 
 
@@ -70,28 +69,51 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Color(0x739E9E9E),
                 ),
 
-                Row(
-                  children: [
-                    const Text("설정", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
-                    IconButton(onPressed: showDatePicker, icon: Icon(Icons.settings), iconSize: 25, color: Colors.deepPurple,),
-                  ],
-                ),
-                const SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Expanded(child: Text("기준연월", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600,),)),
-                    Text("${selectedDate.year}년 ${selectedDate.month}월", style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.w600,),),
-                  ],
-                ),
-                const SizedBox(height: 10,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("가맹점 / 직원수", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
-                    Text("${storeList.length}개 / ${staffIDList.length}명", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     const Text("설정", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),),
+                //     IconButton(onPressed: showDatePicker, icon: Icon(Icons.settings), iconSize: 25, color: Colors.deepPurple,),
+                //   ],
+                // ),
+                // const SizedBox(height: 15,),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const Expanded(child: Text("기준연월", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600,),)),
+                //     Text("${selectedDate.year}년 ${selectedDate.month}월", style: TextStyle(color: Colors.deepPurple, fontSize: 16, fontWeight: FontWeight.w600,),),
+                //   ],
+                // ),
+                // const SizedBox(height: 10,),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const Text("가맹점 / 직원수", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
+                //     Text("${storeList.length}개 / ${staffIDList.length}명", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,),),
+                //   ],
+                // ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.blue[200],
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: kElevationToShadow[2],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Container(
+                            color: Colors.green[500],
+                          ),
+                        ),
+                      ),
+                      Expanded(flex: 5, child: Container()),
+                    ],
+                  ),
+                )
               ],
             ),
             const Divider(
