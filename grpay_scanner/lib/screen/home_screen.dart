@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Icon(Icons.restaurant, size: 30, color: Colors.amber[600],),
+                                      Icon(Icons.storefront, size: 30, color: Colors.amber[600],),
                                       Text("${storeList.length}개", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
                                     ],
                                   ),
@@ -145,37 +145,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               ],
             ),
-
-            // 두번째=작업
-            // Column(
-            //   children: [
-            //     // SizedBox(height: 15,),
-            //     const Row(
-            //       children: [Text("작업", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),)],
-            //     ),
-            //     const SizedBox(height: 10,),
-            //     Row(
-            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //       children: [
-            //         Expanded(child: Text("완료", style: TextStyle(color: Colors.green[700], fontSize: 17, fontWeight: FontWeight.w600),)),
-            //         Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             Text("가맹점 ${doneStores.values.where((isDone) => isDone).length}개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600,),),
-            //             Text("스캔됨 ${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }개", style: TextStyle(color: Colors.green[700], fontSize: 16, fontWeight: FontWeight.w600),),
-            //           ],
-            //         ),
-            //       ],
-            //     ),
-            //     const SizedBox(height: 15,),
-            //     Row(
-            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //       children: [
-            //         const Text("예정", style: TextStyle(color: Colors.redAccent, fontSize: 17, fontWeight: FontWeight.w600,),),
-            //         Text("가맹점 ${doneStores.values.where((isDone) => !isDone).length}개", style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.w600,),)],
-            //     ),
-            //   ],
-            // ),
 
 
             // 두번째=작업
@@ -216,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.assignment_turned_in_outlined, size: 33, color: Colors.green[600],),
-                                      // Text(" 완료", style: TextStyle(fontSize: 20, color: Colors.green[600], fontWeight: FontWeight.bold,),),
+                                      Text(" 완료", style: TextStyle(fontSize: 16, color: Colors.green[600], fontWeight: FontWeight.bold,),),
                                     ],
                                   ),
                                 ),
@@ -231,8 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Icon(Icons.restaurant, size: 28, color: Colors.amber[600],),
-                                          const Text(" × ", style: TextStyle(fontSize: 23,),),
+                                          Icon(Icons.storefront, size: 30, color: Colors.amber[600],),
+                                          const Text("×", style: TextStyle(fontSize: 23,),),
                                           Text("${doneStores.values.where((isDone) => isDone).length}", style: TextStyle(color: Colors.green[700], fontSize: 25, fontWeight: FontWeight.w600,),),
                                         ],
                                       ),
@@ -240,8 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Icon(Icons.qr_code_2, size: 30, color: Colors.deepPurpleAccent,),
-                                          const Text(" × ", style: TextStyle(fontSize: 23,),),
+                                          Icon(Icons.qr_code, size: 30, color: Colors.deepPurpleAccent,),
+                                          const Text("×", style: TextStyle(fontSize: 23,),),
                                           Text("${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }", style: TextStyle(color: Colors.green[700], fontSize: 25, fontWeight: FontWeight.w600,),),
                                         ],
                                       ),
@@ -275,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.pending_actions, size: 33, color: Colors.red[700],),
-                                      // Text(" 예정", style: TextStyle(fontSize: 20, color: Colors.red[700], fontWeight: FontWeight.bold),),
+                                      Text(" 예정", style: TextStyle(fontSize: 16, color: Colors.red[700], fontWeight: FontWeight.bold),),
                                     ],
                                   ),
                                 ),
@@ -284,10 +253,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Padding(
                                   padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.restaurant, size: 30, color: Colors.amber[600],),
-                                      const Text(" × ", style: TextStyle(fontSize: 23,),),
+                                      Icon(Icons.storefront, size: 30, color: Colors.amber[600],),
+                                      const Text("×", style: TextStyle(fontSize: 23,),),
                                       Text("${doneStores.values.where((isDone) => isDone).length}", style: TextStyle(color: Colors.red[700], fontSize: 25, fontWeight: FontWeight.w600,),),
                                     ],
                                   ),
@@ -303,63 +272,141 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            const Divider(
-              height: 40,
-              thickness: 1,
-              indent: 0,
-              endIndent: 0,
-              color: Color(0x739E9E9E),
-            ),
-
-            // 세번째=사용방법
-            const Column(
+            // 세번째=사용
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // SizedBox(height: 15,),
-                Row(
-                  children: [Text("사용방법", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),)],
-                ),
-                SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("1. 스캔하기를 선택한다"),],
-                ),
-                SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("2. 스캔할 가맹점(식당)을 선택한다")],
-                ),
-                SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("3. 그 가맹점의 식권을 모두 스캔한다")],
-                ),
-                SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("4. 저장하기를 누른다 (다시 1번부터 반복)")],
-                ),
-                SizedBox(height: 15,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text("⚠︎ 스캔하기 전 반드시 상호명을 확인해주세요")],
-                ),
+                const SizedBox(height: 20,),
+                const Text("  사용", style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 165,
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: kElevationToShadow[2],
+                  ),
+                  // 상하 2줄
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // 첫번째: 스캔하기
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(25, 15, 20, 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: kElevationToShadow[2],
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Center(child: Text("1 스캔하기", style: TextStyle(fontSize: 16,),)),
+                              ),
+                            ),
+                          ),
+
+                          // 오른쪽 화살표
+                          const Icon(Icons.east, size: 25,),
+
+                          // 두번째: 가맹점 선택
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 15, 25, 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: kElevationToShadow[2],
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Center(child: Text("2 가맹점 선택", style: TextStyle(fontSize: 16,),)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // 위쪽 아래쪽 화살표
+                      Row(
+                        children: [
+                          const Expanded(
+                            flex: 5,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(25, 0, 25, 0),
+                              child: Icon(Icons.north, size: 25,),
+                            ),
+                          ),
+                          Expanded(flex: 2, child: Container(),),
+                          const Expanded(
+                            flex: 5,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(25, 0, 25, 0),
+                              child: Icon(Icons.south, size: 25,),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      //
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // 네번째: 저장하기
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(25, 10, 20, 15),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: kElevationToShadow[2],
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Center(child: Text("4 저장하기", style: TextStyle(fontSize: 16,),)),
+                              ),
+                            ),
+                          ),
+
+                          // 오른쪽 화살표
+                          const Icon(Icons.west, size: 25,),
+
+                          // 세번째: 식권장부 스캔
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 10, 25, 15),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: kElevationToShadow[2],
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                child: Center(child: Text("3 식권장부 스캔", style: TextStyle(fontSize: 16,),)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    ],
+                  ),
+                )
               ],
             ),
 
-            const Divider(
-              height: 40,
-              thickness: 1,
-              indent: 0,
-              endIndent: 0,
-              color: Color(0x739E9E9E),
-            ),
+            const SizedBox(height: 20,),
+
+
 
             // 스캔하기 버튼
             SizedBox(
               width: MediaQuery.of(context).size.width,
               height: 50,
               child: OutlinedButton.icon(
-                icon: const Icon(Icons.qr_code),
+                icon: const Icon(Icons.qr_code_scanner),
                 label: const Text("스캔하기", style: TextStyle(fontSize: 20,),),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.red[700],
@@ -467,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showCupertinoModalPopup(
       context: context,
       builder: (_) => Container(
-        height: 350,
+        height: 330,
         color: CupertinoColors.systemBackground,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -476,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 CupertinoButton(
-                  child: Text('완료', style: TextStyle(color: Colors.black87),),
+                  child: const Text('완료', style: TextStyle(color: Colors.black87),),
                   onPressed: () {
                     targetYear = selectedDate.year;
                     targetMonth = selectedDate.month;
