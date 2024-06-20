@@ -59,27 +59,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
 
-  // 스캔 윈도(사각형)을 제외한 배경을 리턴하는 CustomPaint 위젯
-  // Widget _buildScanWindow(Rect scanWindowRect) {
-  //   return ValueListenableBuilder(
-  //     valueListenable: controller,
-  //     builder: (context, value, child) {
-  //       // Not ready.
-  //       if (!value.isInitialized ||
-  //           !value.isRunning ||
-  //           value.error != null ||
-  //           value.size.isEmpty) {
-  //         return const SizedBox();
-  //       }
-  //
-  //       return CustomPaint(
-  //         painter: ScannerOverlay(scanWindowRect),
-  //       );
-  //     },
-  //   );
-  // }
-
-
 
   // QR코드 주변 그리는 CustomPaint 위젯
   Widget _buildBarcodeOverlay() {
@@ -239,7 +218,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     // );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25,),), centerTitle: true,),
+      appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
       backgroundColor: Colors.black,
       body: Column(
         children: [
@@ -278,20 +257,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 // height: 100,
-                color: Colors.yellow[600],
-                child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes, scannedQRSet: scannedQRSet.value, fontColor: Colors.black,),
+                color: Colors.black,
+                child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes, scannedQRSet: scannedQRSet.value, fontColor: Colors.yellow,),
               ),
             ),
           ),
           Container(
               width: MediaQuery.of(context).size.width,
               height: 50,
+              color: Colors.black,
               child: TextButton(
-                child: Text("저장하기", style: TextStyle(fontSize: 20,),),
+                child: const Text("저장하기", style: TextStyle(fontSize: 20,),),
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.green[700],
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0),),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
                   side: BorderSide(color: Colors.green[700]!,),
                 ),
                 onPressed: () {

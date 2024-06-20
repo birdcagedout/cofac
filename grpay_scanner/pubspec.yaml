@@ -47,6 +47,8 @@ dependencies:
   path_provider: ^2.1.3
   share_plus: ^9.0.0
 
+  google_fonts: ^6.2.1
+
 
 
 dev_dependencies:
@@ -77,6 +79,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - asset/img/
+    - asset/font/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

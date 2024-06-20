@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -39,7 +40,8 @@ class RestaurantDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     int rowIndex = _restaurants.indexOf(row);
-    Color bgColor = rowIndex.isOdd ? Colors.grey[200]! : Colors.white;
+    Color bgColor = rowIndex.isOdd ? Colors.purple[50]! : Colors.white;
+    if (rowIndex == storeList.length) bgColor = Colors.blue;
 
     return DataGridRowAdapter(
       color: bgColor,
@@ -48,6 +50,9 @@ class RestaurantDataSource extends DataGridSource {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 5),
             alignment: Alignment.center,
+            // decoration: BoxDecoration(
+            //   border: Border.all(color: Colors.transparent),
+            // ),
             child: Text(cell.value.toString()),
           ),
       ],
@@ -81,72 +86,85 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text('${targetYear}년 $targetMonth월 식권 정산', style: TextStyle(fontSize: 25,),), centerTitle: true,),
+      appBar: AppBar(title: Text('${targetYear}년 $targetMonth월 식권 정산', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              flex: 10,
-              child: SfDataGrid(
-                source: restaurantDataSource,
-                frozenColumnsCount: 1,        // 첫번째 컬럼 고정 (좌우 스크롤 시)
-                frozenRowsCount: 0,
-                rowHeight: 42,
-                columns: [
-                  // 첫번째 컬럼 헤더
-                  GridColumn(
-                    columnName: 'restaurant',
-                    columnWidthMode: ColumnWidthMode.auto,
-                    autoFitPadding: const EdgeInsets.all(10),
-                    width: 110,
-                    label: Container(
-                      color: Colors.black54,
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      alignment: Alignment.center,
-                      child: Text('식당(개수)', style: TextStyle(fontSize: 16, color: Colors.white,),),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 10,
+                  child: SfDataGridTheme(
+                    data: const SfDataGridThemeData(frozenPaneLineColor: Colors.transparent),
+                    child: SfDataGrid(
+                      source: restaurantDataSource,
+                      frozenColumnsCount: 1,        // 첫번째 컬럼 고정 (좌우 스크롤 시)
+                      frozenRowsCount: 0,
+                      rowHeight: 42,
+                      // allowEditing: true,
+                      gridLinesVisibility: GridLinesVisibility.none,
+                      columns: [
+                        // 첫번째 컬럼 헤더
+                        GridColumn(
+                          columnName: 'restaurant',
+                          columnWidthMode: ColumnWidthMode.auto,
+                          autoFitPadding: const EdgeInsets.all(10),
+                          width: 110,
+                          label: Container(
+                            color: Colors.purple[800],
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            alignment: Alignment.center,
+                            child: const Text('식당(개수)', style: TextStyle(fontSize: 16, color: Colors.white,),),
+                          ),
+                        ),
+                        // 나머지 컬럼 헤더
+                        for (var staff in staffNameList)
+                          GridColumn(
+                            columnName: staff,
+                            columnWidthMode: ColumnWidthMode.auto,
+                            autoFitPadding: const EdgeInsets.all(10),
+                            label: Container(
+                              color: Colors.purple[800],
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              alignment: Alignment.center,
+                              child: Text(staff, style: const TextStyle(fontSize: 16, color: Colors.white,),),
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
-                  // 나머지 컬럼 헤더
-                  for (var staff in staffNameList)
-                    GridColumn(
-                      columnName: staff,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      autoFitPadding: const EdgeInsets.all(10),
-                      label: Container(
-                        color: Colors.black54,
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        alignment: Alignment.center,
-                        child: Text(staff, style: TextStyle(fontSize: 16, color: Colors.white,),),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 0, bottom: 15, left: 10, right: 10,),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: OutlinedButton.icon(
-                    icon: Icon(Icons.ios_share),
-                    label: Text('엑셀 파일로 공유하기', style: TextStyle(fontSize: 20,),),
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.green[800],
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13),),
-                      side: BorderSide(color: Colors.transparent,),
-                    ),
-                    onPressed: () async {
-                      await saveExcel(widget.ticketData);
-                    },
                   ),
                 ),
-              ),
-            ),
 
-          ],
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 0, bottom: 15),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.ios_share),
+                        label: const Text('엑셀 파일로 공유하기', style: TextStyle(fontSize: 20,),),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.green[800],
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
+                          side: const BorderSide(color: Colors.transparent,),
+                          elevation: 5,
+                          shadowColor: Colors.black,
+                        ),
+                        onPressed: () async {
+                          await saveExcel(widget.ticketData);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -166,6 +184,8 @@ class _ResultScreenState extends State<ResultScreen> {
       // 헤더 셀에 테두리 추가
       var cell = sheet.getRangeByIndex(1, i + 1);
       cell.cellStyle.borders.all.lineStyle = xlsio.LineStyle.thin;
+      cell.cellStyle.backColor = '#${(Colors.purple[800]!.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
+      cell.cellStyle.fontColor = '#FFFFFF';
 
       // 헤더 셀에 값 넣기
       cell.setText(headerRow[i]);
@@ -185,6 +205,17 @@ class _ResultScreenState extends State<ResultScreen> {
 
         // 각 셀에 값 넣기
         cell.setText(row[i].toString());
+
+        // 짝수 row(데이터 첫줄이 rowIndex=2)일 때 배경색 넣기
+        if(rowIndex.isOdd) {
+          cell.cellStyle.backColor = '#${(Colors.purple[50]!.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
+        }
+
+        // 맨끝 합계 row의 배경색, 글자색
+        if(restaurant.contains('합계')) {
+          cell.cellStyle.backColor = '#${(Colors.blue.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
+          cell.cellStyle.fontColor = '#FFFFFF';
+        }
       }
       rowIndex++;
     });
