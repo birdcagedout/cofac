@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "613842988910",
+    "project_id": "grpay-test",
+    "storage_bucket": "grpay-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613842988910:android:151d075a1b7b501d3a9b7f",
+        "android_client_info": {
+          "package_name": "com.birdcagedout.grpay_scanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-XCnSnz3QvA35zLQuBu9R66u9pWWH93k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

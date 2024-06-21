@@ -135,6 +135,7 @@ final Map<String, bool> doneStores = { for(var store in storeList) store: false 
 
 
 // 바코드(QR)과 색깔을 함께 저장하는 자료형
+// mobile_scanner 패키지를 변경하지 않기 위해 바코드에 컬러 더한 Wrapper class
 class BarcodeWithColor {
   Barcode barcode = Barcode();
   Color color = Colors.transparent;

@@ -33,6 +33,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
   ValueNotifier<bool> isQRpresent = ValueNotifier<bool>(false);   // 현재 카메라에 QR이 있는지 여부(있으면 true, 없으면 false)
   Timer? noQRTimer;
 
+  // 현재 QR이 내 QR인지 여부
+  ValueNotifier<bool> isMyQRpresent = ValueNotifier<bool>(false);   // 현재 카메라에 들어온 QR이 내 QR인지 여부(있으면 true, 없으면 false)
+
 
 
   @override
@@ -120,6 +123,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   // 내 QR이 맞는지 검증
                   String rawQR = eachQR.displayValue!;
                   QRInfo qrInfo = getValidQRInfo(rawQR);
+                  isMyQRpresent.value = qrInfo.isMyQR;
 
                   // 내 QR인 경우만 처리 (리스트에서 삭제하면 안됨: scannedBarcodes 리스트 순서를 1개 건너뛰게 됨)
                   if(qrInfo.isMyQR == true) {
@@ -204,18 +208,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 물리적 (W, H) = (1440, 3064)
     double statusBarHeight = MediaQuery.of(context).padding.top;
     double appBarHeight = AppBar().preferredSize.height;
     double cameraPreviewHeight = 512;
-
-
-    // 물리적 (W, H) = (1440, 3064)
-    // final scanWindow = Rect.fromCenter(
-    //   // center: MediaQuery.sizeOf(context).center(Offset.zero) - Offset(0, (statusBarHeight + appBarHeight)) /*- Offset(0, 50)*/,
-    //   center: Offset(MediaQuery.of(context).size.width / 2,  cameraPreviewHeight / 2),
-    //   width: 200,
-    //   height: 200,
-    // );
 
     return Scaffold(
       appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
@@ -267,7 +263,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
               height: 50,
               color: Colors.black,
               child: TextButton(
-                child: const Text("저장하기", style: TextStyle(fontSize: 20,),),
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.green[700],
                   foregroundColor: Colors.white,
@@ -279,9 +274,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   // scannedQRrow는 Map<String, List<int>> 타입임
                   Navigator.of(context).pop(scannedQRrow);
                 },
+                child: const Text("저장하기", style: TextStyle(fontSize: 20,),),
               ),
           ),
-          SizedBox(height: 10,),
+          const SizedBox(height: 10,),
         ],
       ),
     );
