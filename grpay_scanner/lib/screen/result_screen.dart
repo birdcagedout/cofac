@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +22,7 @@ class RestaurantDataSource extends DataGridSource {
       cells: [
         DataGridCell<String> (
           columnName: 'restaurant',
-          value: ticketData.keys.toList()[index] + "(" + ticketData[ticketData.keys.toList()[index]]!['소계']!.length.toString() + ")"
+          value: "${ticketData.keys.toList()[index]} (${ticketData[ticketData.keys.toList()[index]]!['소계']!.length.toString()})",
         ),
 
         for (var staff in staffNameList)
@@ -48,7 +48,7 @@ class RestaurantDataSource extends DataGridSource {
       cells: [
         for (var cell in row.getCells())
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             alignment: Alignment.center,
             // decoration: BoxDecoration(
             //   border: Border.all(color: Colors.transparent),
@@ -86,7 +86,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text('${targetYear}년 $targetMonth월 식권 정산', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
+      appBar: AppBar(title: Text('$targetYear년 $targetMonth월 식권 정산', style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0.0),
