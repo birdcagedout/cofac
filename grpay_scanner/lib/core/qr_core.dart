@@ -139,8 +139,8 @@ class QRInfo {
   int number = 0;
 
   String getString() {
-    String numberString = (number >= 0 && number < 10) ? "0" + number.toString() : number.toString();
-    return numberString + name;
+    String numberString = number.toString().padLeft(2, "0");
+    return (numberString + name);
   }
 }
 

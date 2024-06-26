@@ -72,6 +72,33 @@ const List<String> staffIDList = [
   '2113'
 ];
 
+
+// 팀명
+const List<String> staffTeamList = [
+  '동장',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '행정팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+  '복지팀',
+];
+
 /// 22명 각각의 QR 테두리 색깔
 final List<Color> edgeColorList = [
   const Color(0xFFff1493),
@@ -99,10 +126,11 @@ final List<Color> edgeColorList = [
 ];
 
 
-/// 직원 lookup table (code -> name) ==> {2610: 송재혁, 2591: 이재환, 2595: 정헌옥, ...}
-/// staffTable['2596'] = '김재형'
+/// 직원 lookup table (code -> name) ==> {2610: 송재혁, 2591: 이재환, 2595: 정헌옥, ...}  예) staffTable['2596'] = '김재형'
 final Map<String, String> staffTable = Map.fromIterables(staffIDList, staffNameList);
 
+/// 직원 소속팀 lookup table
+final Map<String, String> teamTable = Map.fromIterables(staffNameList, staffTeamList);
 
 /// 직원별 Color lookup table (code -> color)
 final Map<String, Color> colorTable = Map.fromIterables(staffIDList, edgeColorList);

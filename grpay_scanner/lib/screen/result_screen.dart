@@ -111,7 +111,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           columnName: 'restaurant',
                           columnWidthMode: ColumnWidthMode.auto,
                           autoFitPadding: const EdgeInsets.all(10),
-                          width: 110,
+                          width: 120,
                           label: Container(
                             color: Colors.purple[800],
                             padding: const EdgeInsets.symmetric(horizontal: 5),

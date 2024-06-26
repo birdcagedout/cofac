@@ -3,6 +3,7 @@ import 'dart:async';
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:grpay_scanner/const/const.dart';
 import 'package:grpay_scanner/core/staff_store_data.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../ext/scanned_barcode_label.dart';
@@ -193,12 +194,84 @@ class _ScannerScreenState extends State<ScannerScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("${widget.selectedStore}", style: TextStyle(color: Colors.yellow[600], fontSize: 20,),),
-              Text("스캔완료: ${newSet.length}개", style: TextStyle(color: Colors.white, fontSize: 20,),),
+              Text(widget.selectedStore, style: TextStyle(color: Colors.yellow[600], fontSize: 20,),),
+              Text("스캔완료 ${newSet.length}개", style: const TextStyle(color: Colors.white, fontSize: 20,),),
             ],
           ),
         );
       },
+    );
+  }
+
+
+  /// 스캔한 결과를 아랫쪽에 보여주기
+  Widget _buildScannedResult() {
+    final scrollController = ScrollController();
+
+    return Expanded(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          // height: 100,
+          color: Colors.black,
+          child: StreamBuilder(
+            stream: controller.barcodes,
+            builder: (context, snapshot) {
+              final scannedBarcodes = snapshot.data?.barcodes ?? [];
+
+              if (scannedBarcodes.isEmpty) {
+                return const Text(
+                  '스캔된 QR code가 없습니다',
+                  overflow: TextOverflow.fade,
+                  style: TextStyle(color: Colors.yellow),
+                );
+              }
+
+              /// 현재 StreamBulider 실행 후에 스크롤 위치를 맨 마지막으로 이동
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (scrollController.hasClients) {
+                  scrollController.animateTo(
+                    scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                }
+              });
+
+              // 현재 scannedQRSet을 List로 바꾼다
+              final scannedQRList = scannedQRSet.value.toList();
+
+              return NotificationListener<ScrollNotification>(
+                child: Scrollbar(
+                  controller: scrollController,
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: scannedQRSet.value.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(child: Text("[${(1 + index).toString().padLeft(2, '0')}]", style: const TextStyle(color: Colors.yellow, fontSize: 16),)),   // [01]
+                            Expanded(child: Text(teamTable[scannedQRList[index].substring(2)]!.padLeft(3), style: const TextStyle(color: Colors.yellow, fontSize: 16,),),),   // 행정팀
+                            Expanded(child: Text(scannedQRList[index].substring(2), style: const TextStyle(color: Colors.yellow, fontSize: 16),)),               // 김재형
+                            Expanded(child: Text(targetYear.toString() + targetMonth.toString().padLeft(2, "0"), style: const TextStyle(color: Colors.yellow, fontSize: 16),)),   // 202406
+                            Expanded(child: Text("  # ${scannedQRList[index].substring(0,2)}", style: const TextStyle(color: Colors.yellow, fontSize: 16),)),      // #09
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                onNotification: (notification) => false,
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 
@@ -246,18 +319,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ],
             ),
           ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                // height: 100,
-                color: Colors.black,
-                child: ScannedBarcodeLabel(barcodeCapture: controller.barcodes, scannedQRSet: scannedQRSet.value, fontColor: Colors.yellow,),
-              ),
-            ),
-          ),
+
+          // 스캔 결과 보여주는 부분
+          _buildScannedResult(),
+
+          // "저장하기" 버튼
           Container(
               width: MediaQuery.of(context).size.width,
               height: 50,
@@ -277,6 +343,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 child: const Text("저장하기", style: TextStyle(fontSize: 20,),),
               ),
           ),
+
+          // 화면 하단 여백
           const SizedBox(height: 10,),
         ],
       ),

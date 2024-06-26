@@ -56,7 +56,7 @@ class _ScannedBarcodeLabelState extends State<ScannedBarcodeLabel> {
                 return Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Text(
-                    widget.scannedQRSet.map((e) => "[${index < 9 ? '0'+ (1 + index).toString() : (1 + index).toString()}]    사용자: ${e.substring(2)}    식권번호: ${e.substring(0,2)}").toList()[index] ?? '',
+                    widget.scannedQRSet.map((e) => "[${(1 + index).toString().padLeft(2, '0')}]    사용자: ${e.substring(2)}    식권번호: ${e.substring(0,2)}").toList()[index] ?? '',
                     overflow: TextOverflow.fade,
                     style: TextStyle(color: widget.fontColor, fontSize: 16),
                   ),
