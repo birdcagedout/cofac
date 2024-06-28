@@ -140,8 +140,7 @@ QRInfo getValidQRInfo(String rawQR) {
     B36B[baseQR[10]]! +
     B36B[baseQR[11]]! +
     B36B[baseQR[12]]! +
-    B36B[baseQR[13]]! +
-    B36B[baseQR[14]]!) % 36]!;
+    B36B[baseQR[13]]!) % 36]!;
   if (hash != realHash) return returnValue;
 
   // 모든 검증을 통과한 경우
