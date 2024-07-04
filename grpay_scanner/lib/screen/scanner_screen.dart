@@ -37,6 +37,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
   // 현재 QR이 내 QR인지 여부
   ValueNotifier<bool> isMyQRpresent = ValueNotifier<bool>(false);   // 현재 카메라에 들어온 QR이 내 QR인지 여부(있으면 true, 없으면 false)
 
+  // 스크롤 컨트롤러
+  final scrollController = ScrollController();
+
 
 
   @override
@@ -206,8 +209,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   /// 스캔한 결과를 아랫쪽에 보여주기
   Widget _buildScannedResult() {
-    final scrollController = ScrollController();
-
     return Expanded(
       child: Align(
         alignment: Alignment.bottomCenter,
@@ -285,6 +286,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
     double statusBarHeight = MediaQuery.of(context).padding.top;
     double appBarHeight = AppBar().preferredSize.height;
     double cameraPreviewHeight = 512;
+
+    // iPhone11 Pro Max: W=414.0, H=896.0
+    print("width: ${MediaQuery.of(context).size.width}");
+    print("height: ${MediaQuery.of(context).size.height}");
+
 
     return Scaffold(
       appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
@@ -466,6 +472,10 @@ class BarcodeOverlay extends CustomPainter {
         ratioWidth = cameraPreviewSize.width / adjustedSize.destination.width;
         ratioHeight = cameraPreviewSize.height / adjustedSize.destination.height;
       }
+
+      // iPhone11 Pro Max: ratioWidth=ratioHeight=2.9375
+      print("ratioWidth: $ratioWidth");
+      print("ratioHeight: $ratioHeight");
 
       final List<Offset> adjustedOffset = [
         for (final offset in barcodeCorners)

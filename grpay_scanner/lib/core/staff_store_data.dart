@@ -21,19 +21,19 @@ const List<String> storeList = [
 
 /// 직원 22명 이름
 const List<String> staffNameList = [
-  '송재혁',
+  '장경환',
   '이재환',
   '정헌옥',
-  '정서연',
   '최경희',
-  '김재형',
   '강효정',
+  '임용철',
+  '김재형',
   '유예준',
   '류은지',
   '강희진',
-  '이유미',
-  '박옥주',
-  '윤상익',
+  '박문태',
+  '이수진',
+  '박지원',
   '이형진',
   '송의화',
   '맹진아',
@@ -52,9 +52,9 @@ const List<String> staffIDList = [
   '2591',
   '2595',
   '2592',
+  '2594',
   '2597',
   '2596',
-  '2594',
   '2599',
   '2598',
   '2600',
@@ -69,7 +69,7 @@ const List<String> staffIDList = [
   '2148',
   '2145',
   '2112',
-  '2113'
+  '2140'
 ];
 
 
@@ -102,17 +102,17 @@ const List<String> staffTeamList = [
 /// 22명 각각의 QR 테두리 색깔
 final List<Color> edgeColorList = [
   const Color(0xFFff1493),
-  const Color(0xffa14e14),
-  const Color(0xff5b4acb),
+  const Color(0xFFa14e14),
+  const Color(0xFF5b4acb),
   const Color(0xFF3cb371),
   const Color(0xFF008b8b),
   const Color(0xFF9acd32),
-  const Color(0xff0a0abe),
+  const Color(0xFF0a0abe),
   const Color(0xFFff4500),
   const Color(0xFFffa500),
-  const Color(0xffecec03),
+  const Color(0xFFecec03),
   const Color(0xFF7cfc00),
-  const Color(0xff78a231),
+  const Color(0xFF78a231),
   const Color(0xFFba55d3),
   const Color(0xFFdc143c),
   const Color(0xFF00ffff),

@@ -489,7 +489,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // 저장하기 안 누르고 뒤로 돌아간 경우
                     if(dataFromTheStore == null) {
-                      print("널값 리턴");
                       return;
                     }
 
