@@ -165,9 +165,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
                 // 안드로이드
-                // [Offset(237.0, 349.0), Offset(341.0, 370.0), Offset(320.0, 475.0), Offset(217.0, 453.0)], size: Size(0.0, 0.0), camera: Size(480.0, 640.0)
+                // [Offset(237.0, 349.0), Offset(341.0, 370.0), Offset(320.0, 475.0), Offset(217.0, 453.0)], size: Size(0.0, 0.0), camera: Size(480.0, 640.0)=>비율0.75
                 // 아이폰
-                // [Offset(432.0, 714.0), Offset(679.0, 808.0), Offset(586.0, 1050.0), Offset(343.0, 958.0)], size: Size(1128.0, 1504.0), camera: Size(3024.0, 4032.0)
+                // [Offset(432.0, 714.0), Offset(679.0, 808.0), Offset(586.0, 1050.0), Offset(343.0, 958.0)], size: Size(1128.0, 1504.0), camera: Size(3024.0, 4032.0)=>비율0.75
                 // debugPrint("[CustomPaint직전] corners: ${scannedBarcode.corners}, size: ${barcodeCapture.size}, camera: ${value.size}");
 
                 return CustomPaint(
@@ -282,14 +282,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 물리적 (W, H) = (1440, 3064)
+    // 물리적 해상도는 전혀 중요하지 않다. 아래 물리적 해상도와는 전혀 반대로 논리적 width/height는 iPhone이 더 높다
+    // iPhone11ProMax의 물리적 해상도: W:H = 1242:2688
+    // S24의 물리적 해상도: W:H = 1440:3120
+    // print("width: ${MediaQuery.of(context).size.width}");     // iPhone: 414, S24: 384.0
+    // print("height: ${MediaQuery.of(context).size.height}");   // iPhone: 896, S24: 817.0666666666667
+
     double statusBarHeight = MediaQuery.of(context).padding.top;
     double appBarHeight = AppBar().preferredSize.height;
-    double cameraPreviewHeight = 512;
+    // print("statusBarHeight: $statusBarHeight");               // iPhone: 44,  S24: 27.733333333333334
+    // print("appBarHeight: $appBarHeight");                     // iPhone: 56,  S24: 56.0
 
-    // iPhone11 Pro Max: W=414.0, H=896.0
-    print("width: ${MediaQuery.of(context).size.width}");
-    print("height: ${MediaQuery.of(context).size.height}");
+
+    // MobileScanner 패키지에서 open하는 카메라는 iPhone과 S24에서 모두 W:H = 3:4
+    // double cameraPreviewHeight = (defaultTargetPlatform == TargetPlatform.iOS) ? 552 : 512;
+    double cameraPreviewHeight = MediaQuery.of(context).size.width * 4 / 3;
 
 
     return Scaffold(
@@ -298,7 +305,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       body: Column(
         children: [
           SizedBox(
-            height: 512,
+            height: cameraPreviewHeight,
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -366,39 +373,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
 
 
-// 스캔 윈도(중간 사각형)을 제외한 나머지 배경을 그리는 CustomPainer
-// class ScannerOverlay extends CustomPainter {
-//   ScannerOverlay(this.scanWindow);
-//
-//   final Rect scanWindow;
-//
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     // TODO: use `Offset.zero & size` instead of Rect.largest
-//     // we need to pass the size to the custom paint widget
-//     final backgroundPath = Path()..addRect(Rect.largest);
-//     final cutoutPath = Path()..addRect(scanWindow);
-//
-//     final backgroundPaint = Paint()
-//       ..color = Colors.black.withOpacity(0.5)
-//       ..style = PaintingStyle.fill
-//       ..blendMode = BlendMode.dstOut;
-//
-//     final backgroundWithCutout = Path.combine(
-//       PathOperation.difference,
-//       backgroundPath,
-//       cutoutPath,
-//     );
-//     canvas.drawPath(backgroundWithCutout, backgroundPaint);
-//   }
-//
-//   @override
-//   bool shouldRepaint(ScannerOverlay oldDelegate) {
-//     return false;
-//   }
-// }
-
-
 
 
 
@@ -420,6 +394,14 @@ class BarcodeOverlay extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // iPhone: 414.0, 512.0
+    // S24: 384.0, 552.0
+    print("Size in paint(): ${size.width}, ${size.height}");
+
+    // iPhone: 3024.0, 4032.0
+    // S24: 480.0, 640.0
+    print("CameraPreviewSize in paint(): ${cameraPreviewSize.width}, ${cameraPreviewSize.height}");
+
 
     for(var eachQRwithColor in myQRs) {
       final List<Offset> barcodeCorners = eachQRwithColor.barcode.corners;
