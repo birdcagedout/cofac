@@ -285,8 +285,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     // 물리적 해상도는 전혀 중요하지 않다. 아래 물리적 해상도와는 전혀 반대로 논리적 width/height는 iPhone이 더 높다
     // iPhone11ProMax의 물리적 해상도: W:H = 1242:2688
     // S24의 물리적 해상도: W:H = 1440:3120
-    // print("width: ${MediaQuery.of(context).size.width}");     // iPhone: 414, S24: 384.0
-    // print("height: ${MediaQuery.of(context).size.height}");   // iPhone: 896, S24: 817.0666666666667
+    // print("width: ${MediaQuery.of(context).size.width}");     // iPhone: W=414, H=896
+    // print("height: ${MediaQuery.of(context).size.height}");   // S24: W=384.0, H=817.0666666666667
 
     double statusBarHeight = MediaQuery.of(context).padding.top;
     double appBarHeight = AppBar().preferredSize.height;
@@ -302,64 +302,66 @@ class _ScannerScreenState extends State<ScannerScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('스캔 중', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),), centerTitle: true,),
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          SizedBox(
-            height: cameraPreviewHeight,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
+      body: SafeArea(
+        child: Column(
+          children: [
+            SizedBox(
+              height: cameraPreviewHeight,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
 
-                // 검은배경과 카메라프리뷰 합쳐서 MobileScanner임 (앱바를 제외한 모든영역에서 위/아래 검은색 같은 높이)
-                MobileScanner(
-                  fit: BoxFit.contain,
-                  // scanWindow: scanWindow,
-                  controller: controller,
-                ),
+                  // 검은배경과 카메라프리뷰 합쳐서 MobileScanner임 (앱바를 제외한 모든영역에서 위/아래 검은색 같은 높이)
+                  MobileScanner(
+                    fit: BoxFit.contain,
+                    // scanWindow: scanWindow,
+                    controller: controller,
+                  ),
 
-                // QR code 테두리 색칠 (QR 없으면 투명색)
-                _buildBarcodeOverlay(),
+                  // QR code 테두리 색칠 (QR 없으면 투명색)
+                  _buildBarcodeOverlay(),
 
-                // 스캔 윈도
-                // _buildScanWindow(scanWindow),
+                  // 스캔 윈도
+                  // _buildScanWindow(scanWindow),
 
-                // 스캔 완료
-                _buildScanCompleted(),
+                  // 스캔 완료
+                  _buildScanCompleted(),
 
-                // QR 없을 때 검출을 위한 테스트
-                // ValueListenableBuilder(valueListenable: isQRpresent, builder: (context, isQR, child) { if(isQR) print("QR 있음"); else print("QR 없음");  return SizedBox();},),
+                  // QR 없을 때 검출을 위한 테스트
+                  // ValueListenableBuilder(valueListenable: isQRpresent, builder: (context, isQR, child) { if(isQR) print("QR 있음"); else print("QR 없음");  return SizedBox();},),
 
-              ],
-            ),
-          ),
-
-          // 스캔 결과 보여주는 부분
-          _buildScannedResult(),
-
-          // "저장하기" 버튼
-          Container(
-              width: MediaQuery.of(context).size.width,
-              height: 50,
-              color: Colors.black,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.green[700],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
-                  side: BorderSide(color: Colors.green[700]!,),
-                ),
-                onPressed: () {
-                  // 현재까지 QR 검출된 data를 pop에 인자로 넘겨주기
-                  // scannedQRrow는 Map<String, List<int>> 타입임
-                  Navigator.of(context).pop(scannedQRrow);
-                },
-                child: const Text("저장하기", style: TextStyle(fontSize: 20,),),
+                ],
               ),
-          ),
+            ),
 
-          // 화면 하단 여백
-          const SizedBox(height: 10,),
-        ],
+            // 스캔 결과 보여주는 부분
+            _buildScannedResult(),
+
+            // "저장하기" 버튼
+            Container(
+                width: MediaQuery.of(context).size.width,
+                height: 50,
+                color: Colors.black,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
+                    side: BorderSide(color: Colors.green[700]!,),
+                  ),
+                  onPressed: () {
+                    // 현재까지 QR 검출된 data를 pop에 인자로 넘겨주기
+                    // scannedQRrow는 Map<String, List<int>> 타입임
+                    Navigator.of(context).pop(scannedQRrow);
+                  },
+                  child: const Text("저장하기", style: TextStyle(fontSize: 20,),),
+                ),
+            ),
+
+            // 화면 하단 여백
+            const SizedBox(height: 20,),
+          ],
+        ),
       ),
     );
   }
