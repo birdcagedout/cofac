@@ -1,11 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart'; // 연월 한글로
-import 'package:flutter/services.dart'; // 세로모드 고정
-
-import 'screen/splash_screen.dart';
-import 'const/const.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';    // 연월 한글로
+import 'package:flutter/services.dart';                               // 세로모드 고정
 import 'package:google_fonts/google_fonts.dart';
+
+import '/const/const.dart';
+import '/screen/splash_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';

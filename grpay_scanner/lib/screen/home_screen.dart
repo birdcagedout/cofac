@@ -1,7 +1,5 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 import '/const/const.dart';
@@ -53,14 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
         HapticFeedback.mediumImpact();
       },
       child: Scaffold(
-        appBar: AppBar(title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("급량  ", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
-            Container(width: 35, height: 35, child: Image.asset('asset/img/grpay.png', fit: BoxFit.contain,)),
-            const Text("  페이", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
-          ],
-        ), centerTitle: true,),
+        appBar: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("급량  ", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
+              Container(width: 35, height: 35, child: Image.asset('asset/img/grpay.png', fit: BoxFit.contain,),),
+              const Text("  페이", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,),),
+            ],
+          ),
+          centerTitle: true,
+        ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
           child: Column(
@@ -68,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // 첫번째=설정
               Expanded(
+                flex: 11,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -132,28 +134,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 child: Column(
                                   children: [
+                                    // 직원
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 3),
+                                        padding: const EdgeInsets.fromLTRB(15, 9, 15, 3),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             // Icon(Icons.group, size: 30, color: Colors.blue[600],),
                                             Image.asset('asset/img/people1.png', width: 30, height: 30, fit: BoxFit.contain,),
-                                            Text("${staffIDList.length}명", style: const TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold,),),
+                                            Text("직원  ${staffIDList.length}명", style: const TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold,),),
                                           ],
                                         ),
                                       ),
                                     ),
+                                    // 가맹점
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(20, 3, 20, 8),
+                                        padding: const EdgeInsets.fromLTRB(15, 3, 15, 9),
                                         child: Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             // Icon(Icons.storefront, size: 30, color: Colors.amber[600],),
                                             Image.asset('asset/img/restaurant3.png', width: 30, height: 30, fit: BoxFit.contain,),
-                                            Text("${storeList.length}개", style: const TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold,),),
+                                            Text("가맹점  ${storeList.length}개", style: const TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold,),),
                                           ],
                                         ),
                                       ),
@@ -175,6 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // 두번째=작업
               Expanded(
+                flex: 11,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -199,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(12),
                                   boxShadow: kElevationToShadow[2],
                                 ),
                                 child: Column(
@@ -225,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                     // 완료된 가맹점, 직원 부분
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
@@ -235,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               // Icon(Icons.storefront, size: 30, color: Colors.amber[600],),
                                               Image.asset('asset/img/restaurant3.png', width: 25, height: 25, fit: BoxFit.contain,),
-                                              const Text("×", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
+                                              const Text("×", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
                                               Text("${doneStores.values.where((isDone) => isDone).length}", style: TextStyle(color: Colors.green[700], fontSize: 22, fontWeight: FontWeight.w600,),),
                                             ],
                                           ),
@@ -245,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             children: [
                                               // Icon(Icons.qr_code, size: 30, color: Colors.deepPurpleAccent,),
                                               Image.asset('asset/img/qr.png', width: 22, height: 22, fit: BoxFit.contain,),   // 다른 아이콘보다 살짝 작게 해야 크기가 맞다(25->22)
-                                              const Text("×", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
+                                              const Text("×", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
                                               Text("${ [for(var store in storeList) ticketData[store]!['소계']!.length].fold(0, (acc, val) => acc + val) }", style: TextStyle(color: Colors.green[700], fontSize: 22, fontWeight: FontWeight.w600,),),
                                             ],
                                           ),
@@ -266,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(12),
                                   boxShadow: kElevationToShadow[2],
                                 ),
                                 child: Column(
@@ -298,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         children: [
                                           // Icon(Icons.storefront, size: 30, color: Colors.amber[600],),
                                           Image.asset('asset/img/restaurant3.png', width: 25, height: 25, fit: BoxFit.contain,),
-                                          const Text("×", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),),
+                                          const Text("×", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
                                           Text("${doneStores.values.where((isDone) => !isDone).length}", style: TextStyle(color: Colors.red[700], fontSize: 22, fontWeight: FontWeight.w600,),),
                                         ],
                                       ),
@@ -319,6 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // 세번째=사용
               Expanded(
+                flex: 13,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -326,31 +332,32 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text("  사용", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),),
                     Container(
                       width: MediaQuery.of(context).size.width,
-                      // height: 155,
+                      height: 140,
                       decoration: BoxDecoration(
-                        color: Colors.blue[100],
+                        color: Colors.lightBlue[100],
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: kElevationToShadow[2],
                       ),
                       // 상하 2줄
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               // 첫번째: 스캔하기
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(25, 10, 25, 5),
+                                padding: const EdgeInsets.fromLTRB(25, 15, 25, 5),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Colors.red[700],
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: kElevationToShadow[2],
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [Colors.lightBlue, Colors.purple[400]!],
-                                    ),
+                                    // gradient: LinearGradient(
+                                    //   begin: Alignment.topLeft,
+                                    //   end: Alignment.bottomRight,
+                                    //   colors: [Colors.lightBlue, Colors.purple[400]!],
+                                    // ),
                                   ),
                                   child: const Padding(
                                     padding: EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -364,17 +371,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
                               // 두번째: 가맹점 선택
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(25, 10, 25, 5),
+                                padding: const EdgeInsets.fromLTRB(25, 15, 25, 5),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Colors.green[600],
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: kElevationToShadow[2],
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [Colors.lightBlue, Colors.purple[400]!],
-                                    ),
+                                    // gradient: LinearGradient(
+                                    //   begin: Alignment.topLeft,
+                                    //   end: Alignment.bottomRight,
+                                    //   colors: [Colors.lightBlue, Colors.purple[400]!],
+                                    // ),
                                   ),
                                   child: const Padding(
                                     padding: EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -395,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Icon(Icons.north, size: 20, color: Colors.purple,),
                                 ),
                               ),
-                              Expanded(flex: 2, child: Container(),),
+                              Expanded(flex: 3, child: Container(),),
                               const Expanded(
                                 flex: 5,
                                 child: Padding(
@@ -412,17 +419,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               // 네번째: 저장하기
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(25, 5, 25, 10),
+                                padding: const EdgeInsets.fromLTRB(25, 5, 25, 15),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Colors.deepPurple,
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: kElevationToShadow[2],
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [Colors.lightBlue, Colors.purple[400]!],
-                                    ),
+                                    // gradient: LinearGradient(
+                                    //   begin: Alignment.topLeft,
+                                    //   end: Alignment.bottomRight,
+                                    //   colors: [Colors.lightBlue, Colors.purple[400]!],
+                                    // ),
                                   ),
                                   child: const Padding(
                                     padding: EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -436,17 +443,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
                               // 세번째: 식권장부 스캔
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(25, 5, 25, 10),
+                                padding: const EdgeInsets.fromLTRB(25, 5, 25, 15),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Colors.blue,
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: kElevationToShadow[2],
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [Colors.lightBlue, Colors.purple[400]!],
-                                    ),
+                                    // gradient: LinearGradient(
+                                    //   begin: Alignment.topLeft,
+                                    //   end: Alignment.bottomRight,
+                                    //   colors: [Colors.lightBlue, Colors.purple[400]!],
+                                    // ),
                                   ),
                                   child: const Padding(
                                     padding: EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -464,12 +471,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SizedBox(height: 50,),
+              const SizedBox(height: 20,),
 
 
 
-              // 스캔하기 버튼
+              // 스캔하기/결과보기 버튼
               Expanded(
+                flex: 10,
                 child: Column(
                   children: [
                     SizedBox(
@@ -482,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: Colors.red[700],
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
-                          side: BorderSide(color: Colors.transparent,),
+                          side: const BorderSide(color: Colors.transparent,),
                           elevation: 5,
                           shadowColor: Colors.black,
                         ),
@@ -534,20 +542,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    SizedBox(height: 15,),
+                    const SizedBox(height: 15,),
 
                     // 결과보기 버튼
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
                       height: 50,
                       child: OutlinedButton.icon(
-                        icon: Icon(Icons.list_alt),
-                        label: Text("결과보기", style: TextStyle(fontSize: 20,),),
+                        icon: const Icon(Icons.list_alt),
+                        label: const Text("결과보기", style: TextStyle(fontSize: 20,),),
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.blue[700],
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
-                          side: BorderSide(color: Colors.transparent,),
+                          side: const BorderSide(color: Colors.transparent,),
                           elevation: 5,
                           shadowColor: Colors.black,
                         ),

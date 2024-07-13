@@ -1,13 +1,10 @@
 import 'dart:async';
-
-// import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:grpay_scanner/const/const.dart';
-import 'package:grpay_scanner/core/staff_store_data.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../ext/scanned_barcode_label.dart';
-import '../core/qr_core.dart';
+import '/const/const.dart';
+import '/core/staff_store_data.dart';
+import '/core/qr_core.dart';
 
 
 
@@ -60,7 +57,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
           noQRTimer!.cancel();
         }
         // 300ms짜리 새로운 타이머 생성 => 300ms 후에 스트림 안 들어오면 isQRpresent은 false
-        noQRTimer = Timer(Duration(milliseconds: controller.detectionTimeoutMs + 50), () => isQRpresent.value = false,);
+        noQRTimer = Timer(
+          Duration(milliseconds: controller.detectionTimeoutMs + 50),
+          () => isQRpresent.value = false,
+        );
       },
     );
   }
@@ -288,8 +288,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     // print("width: ${MediaQuery.of(context).size.width}");     // iPhone: W=414, H=896
     // print("height: ${MediaQuery.of(context).size.height}");   // S24: W=384.0, H=817.0666666666667
 
-    double statusBarHeight = MediaQuery.of(context).padding.top;
-    double appBarHeight = AppBar().preferredSize.height;
+    // double statusBarHeight = MediaQuery.of(context).padding.top;
+    // double appBarHeight = AppBar().preferredSize.height;
     // print("statusBarHeight: $statusBarHeight");               // iPhone: 44,  S24: 27.733333333333334
     // print("appBarHeight: $appBarHeight");                     // iPhone: 56,  S24: 56.0
 

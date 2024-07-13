@@ -7,8 +7,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:grpay_scanner/main.dart';
 import 'package:grpay_scanner/screen/home_screen.dart';
 
 void main() {
