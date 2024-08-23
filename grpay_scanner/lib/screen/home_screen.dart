@@ -604,7 +604,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Stack(
           children: [
             // DatePicker
-            Expanded(
+            Positioned.fill(
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.monthYear,
                 // dateOrder: DatePickerDateOrder.ymd,
